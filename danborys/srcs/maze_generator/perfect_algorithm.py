@@ -7,6 +7,8 @@ import random
 
 class PerfectAlgorithm(Algorithm):
     def generate(self) -> Grid:
+        if self.config.seed:
+            random.seed(self.config.seed)
         self.visited: Set[Tuple[int, int]] = set()
         cells_42 = self.get_42_cells()
         if isinstance(cells_42, str):
