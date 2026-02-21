@@ -1,10 +1,10 @@
 import sys
-from config_parser import Configuration, ConfigParser
+from .config_parser import Configuration, ConfigParser
 from pathlib import Path
-from maze_generator import MazeGenerator
+from .maze_generator import MazeGenerator
 
 
-def main() -> None:
+def main():
     """
     Entry point of the A-Maze-ing application.
 
@@ -30,7 +30,8 @@ def main() -> None:
 
     configuration: Configuration = ConfigParser.parse_config(Path(sys.argv[1]))
     generator = MazeGenerator(config=configuration)
-    generator.print_grid()
+    # generator.print_grid()
+    return generator
 
 
 if __name__ == "__main__":

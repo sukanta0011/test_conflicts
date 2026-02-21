@@ -1,8 +1,8 @@
-from config_parser import Configuration
-from grid import Grid
-from abc_algorithm import Algorithm
-from basic_algorithm import BasicAlgorithm
-from perfect_algorithm import PerfectAlgorithm
+from .config_parser import Configuration
+from .grid import Grid
+from .abc_algorithm import Algorithm
+from .basic_algorithm import BasicAlgorithm
+from .perfect_algorithm import PerfectAlgorithm
 
 
 class MazeGenerator():

@@ -1,5 +1,5 @@
-from abc_algorithm import Algorithm
-from grid import Grid
+from .abc_algorithm import Algorithm
+from .grid import Grid
 
 
 class PerfectAlgorithm(Algorithm):
