@@ -122,9 +122,9 @@ class MazeVisualizerOne(MazeVisualizer):
     def draw_start_stop(self):
         ShapeGenerator.draw_filled_rectangle(
                 self.mlx, self.mlx.buff_img,
-                (self.start[0] * self.const.grid_size +
+                (self.start[1] * self.const.grid_size +
                  self.const.wall_thickness,
-                 self.start[1] * self.const.grid_size +
+                 self.start[0] * self.const.grid_size +
                  self.const.wall_thickness),
                 self.const.grid_size - self.const.wall_thickness,
                 self.const.grid_size - self.const.wall_thickness,
@@ -132,9 +132,9 @@ class MazeVisualizerOne(MazeVisualizer):
             )
         ShapeGenerator.draw_filled_rectangle(
                 self.mlx, self.mlx.buff_img,
-                (self.end[0] * self.const.grid_size +
+                (self.end[1] * self.const.grid_size +
                  self.const.wall_thickness,
-                 self.end[1] * self.const.grid_size +
+                 self.end[0] * self.const.grid_size +
                  self.const.wall_thickness),
                 self.const.grid_size - self.const.wall_thickness,
                 self.const.grid_size - self.const.wall_thickness,
@@ -169,34 +169,42 @@ class MazeVisualizerOne(MazeVisualizer):
 
 
 def maze_tester():
-    data = [
-        [9, 5, 1, 5, 3, 9, 1, 5, 3, 9, 5, 5, 1, 7, 9, 5, 1, 5, 1, 1, 5, 1, 1, 5, 3],   # Row  0
-        [14, 11, 10, 11, 10, 14, 8, 1, 2, 8, 5, 3, 12, 1, 4, 1, 2, 11, 10, 8, 1, 2, 8, 1, 2],  # Row  1
-        [9, 6, 10, 8, 4, 1, 6, 10, 8, 4, 5, 4, 5, 4, 1, 2, 10, 12, 4, 2, 8, 2, 12, 2, 10],     # Row  2
-        [12, 3, 10, 8, 3, 8, 1, 6, 10, 9, 3, 9, 5, 3, 8, 4, 4, 5, 3, 10, 8, 2, 13, 0, 2],      # Row  3
-        [9, 6, 8, 4, 2, 10, 8, 5, 2, 10, 12, 0, 7, 10, 10, 13, 1, 3, 10, 8, 2, 8, 3, 12, 2],   # Row  4
-        [12, 1, 2, 9, 6, 12, 4, 3, 10, 10, 11, 8, 3, 10, 10, 9, 2, 10, 10, 8, 6, 8, 6, 11, 10],# Row  5
-        [9, 2, 14, 8, 5, 3, 9, 6, 8, 4, 2, 8, 4, 4, 4, 6, 8, 2, 10, 12, 1, 2, 9, 0, 2],        # Row  6
-        [10, 12, 3, 8, 1, 4, 4, 5, 2, 15, 10, 8, 3, 15, 15, 15, 8, 2, 12, 5, 2, 12, 4, 2, 10], # Row  7
-        [8, 5, 6, 8, 4, 1, 1, 7, 10, 15, 12, 6, 8, 5, 7, 15, 10, 12, 1, 3, 8, 3, 13, 0, 6],    # Row  8
-        [12, 5, 3, 10, 13, 0, 4, 3, 10, 15, 15, 15, 10, 15, 15, 15, 8, 5, 6, 10, 10, 8, 1, 4, 3], # Row  9
-        [9, 1, 4, 4, 1, 2, 9, 4, 2, 9, 7, 15, 10, 15, 13, 5, 0, 1, 1, 4, 2, 12, 6, 11, 10],    # Row 10
-        [10, 10, 9, 1, 2, 10, 12, 3, 8, 4, 3, 15, 10, 15, 15, 15, 8, 2, 8, 5, 6, 13, 5, 2, 10],# Row 11
-        [8, 4, 2, 10, 8, 6, 9, 2, 10, 9, 2, 11, 8, 5, 1, 7, 12, 4, 4, 5, 1, 5, 5, 2, 10],      # Row 12
-        [8, 1, 6, 10, 12, 3, 8, 4, 4, 6, 8, 2, 8, 5, 2, 9, 3, 9, 1, 7, 10, 9, 5, 4, 2],        # Row 13
-        [12, 4, 1, 6, 9, 2, 8, 5, 1, 3, 12, 4, 4, 3, 10, 8, 2, 8, 4, 5, 6, 12, 3, 11, 10],     # Row 14
-        [9, 1, 4, 1, 6, 10, 10, 9, 2, 12, 3, 9, 3, 10, 8, 2, 8, 0, 1, 5, 5, 3, 10, 10, 10],    # Row 15
-        [10, 8, 1, 2, 9, 2, 10, 10, 8, 1, 4, 6, 8, 2, 12, 6, 10, 8, 6, 9, 3, 12, 6, 10, 10],   # Row 16
-        [10, 8, 4, 4, 2, 12, 6, 12, 2, 12, 1, 1, 6, 8, 5, 5, 2, 12, 1, 6, 10, 9, 5, 4, 2],     # Row 17
-        [8, 6, 9, 5, 6, 9, 5, 1, 6, 9, 2, 12, 1, 4, 5, 5, 4, 1, 6, 9, 2, 8, 5, 5, 2],          # Row 18
-        [12, 5, 4, 5, 5, 4, 5, 4, 5, 6, 12, 5, 4, 5, 5, 5, 5, 4, 5, 4, 4, 4, 5, 5, 6],         # Row 19
-        ]
-    path = "SWSESWSESWSSSEESEEENEESESEESSSEEESSSEEENNENEE"
+    # data = [
+    #     [9, 5, 1, 5, 3, 9, 1, 5, 3, 9, 5, 5, 1, 7, 9, 5, 1, 5, 1, 1, 5, 1, 1, 5, 3],   # Row  0
+    #     [14, 11, 10, 11, 10, 14, 8, 1, 2, 8, 5, 3, 12, 1, 4, 1, 2, 11, 10, 8, 1, 2, 8, 1, 2],  # Row  1
+    #     [9, 6, 10, 8, 4, 1, 6, 10, 8, 4, 5, 4, 5, 4, 1, 2, 10, 12, 4, 2, 8, 2, 12, 2, 10],     # Row  2
+    #     [12, 3, 10, 8, 3, 8, 1, 6, 10, 9, 3, 9, 5, 3, 8, 4, 4, 5, 3, 10, 8, 2, 13, 0, 2],      # Row  3
+    #     [9, 6, 8, 4, 2, 10, 8, 5, 2, 10, 12, 0, 7, 10, 10, 13, 1, 3, 10, 8, 2, 8, 3, 12, 2],   # Row  4
+    #     [12, 1, 2, 9, 6, 12, 4, 3, 10, 10, 11, 8, 3, 10, 10, 9, 2, 10, 10, 8, 6, 8, 6, 11, 10],# Row  5
+    #     [9, 2, 14, 8, 5, 3, 9, 6, 8, 4, 2, 8, 4, 4, 4, 6, 8, 2, 10, 12, 1, 2, 9, 0, 2],        # Row  6
+    #     [10, 12, 3, 8, 1, 4, 4, 5, 2, 15, 10, 8, 3, 15, 15, 15, 8, 2, 12, 5, 2, 12, 4, 2, 10], # Row  7
+    #     [8, 5, 6, 8, 4, 1, 1, 7, 10, 15, 12, 6, 8, 5, 7, 15, 10, 12, 1, 3, 8, 3, 13, 0, 6],    # Row  8
+    #     [12, 5, 3, 10, 13, 0, 4, 3, 10, 15, 15, 15, 10, 15, 15, 15, 8, 5, 6, 10, 10, 8, 1, 4, 3], # Row  9
+    #     [9, 1, 4, 4, 1, 2, 9, 4, 2, 9, 7, 15, 10, 15, 13, 5, 0, 1, 1, 4, 2, 12, 6, 11, 10],    # Row 10
+    #     [10, 10, 9, 1, 2, 10, 12, 3, 8, 4, 3, 15, 10, 15, 15, 15, 8, 2, 8, 5, 6, 13, 5, 2, 10],# Row 11
+    #     [8, 4, 2, 10, 8, 6, 9, 2, 10, 9, 2, 11, 8, 5, 1, 7, 12, 4, 4, 5, 1, 5, 5, 2, 10],      # Row 12
+    #     [8, 1, 6, 10, 12, 3, 8, 4, 4, 6, 8, 2, 8, 5, 2, 9, 3, 9, 1, 7, 10, 9, 5, 4, 2],        # Row 13
+    #     [12, 4, 1, 6, 9, 2, 8, 5, 1, 3, 12, 4, 4, 3, 10, 8, 2, 8, 4, 5, 6, 12, 3, 11, 10],     # Row 14
+    #     [9, 1, 4, 1, 6, 10, 10, 9, 2, 12, 3, 9, 3, 10, 8, 2, 8, 0, 1, 5, 5, 3, 10, 10, 10],    # Row 15
+    #     [10, 8, 1, 2, 9, 2, 10, 10, 8, 1, 4, 6, 8, 2, 12, 6, 10, 8, 6, 9, 3, 12, 6, 10, 10],   # Row 16
+    #     [10, 8, 4, 4, 2, 12, 6, 12, 2, 12, 1, 1, 6, 8, 5, 5, 2, 12, 1, 6, 10, 9, 5, 4, 2],     # Row 17
+    #     [8, 6, 9, 5, 6, 9, 5, 1, 6, 9, 2, 12, 1, 4, 5, 5, 4, 1, 6, 9, 2, 8, 5, 5, 2],          # Row 18
+    #     [12, 5, 4, 5, 5, 4, 5, 4, 5, 6, 12, 5, 4, 5, 5, 5, 5, 4, 5, 4, 4, 4, 5, 5, 6],         # Row 19
+    #     ]
+    # path = "SWSESWSESWSSSEESEEENEESESEESSSEEESSSEEENNENEE"
+    from srcs.maze_generator.a_maze_ing import main
+    from srcs.maze_generator.config_parser import Configuration
+    generator = main()
+    path = "SES"
+    data = generator.grid.cells
+    print(data)
+    config: Configuration = generator.config
+    # print(config.entry)
     try:
         w, h = MazeParams.get_maze_size_in_pixels(len(data[0]), len(data))
         # print(len(data[0]), len(data), w, h)
-        visualizer = MazeVisualizerOne("A-Maze-Ing", w, h, (1, 1),
-                                       (19, 14), data, path)
+        visualizer = MazeVisualizerOne("A-Maze-Ing", w, h, config.entry,
+                                       config.exit, data, path)
         visualizer.set_background(visualizer.mlx.buff_img,
                                   (0, 0), visualizer.mlx.buff_img.w,
                                   visualizer.mlx.buff_img.w, 0xFF000000)
@@ -210,8 +218,8 @@ def maze_tester():
         txt_to_image.add_stages(TxtColorChanger())
 
         visualizer.display_maze(data, visualizer.const.wall_color)
-        visualizer.show_path(path, visualizer.const.path_color)
-        visualizer.show_user_interaction_options(txt_to_image)
+        # visualizer.show_path(path, visualizer.const.path_color)
+        # visualizer.show_user_interaction_options(txt_to_image)
         visualizer.put_buffer_image()
         visualizer.start_mlx()
     except Exception as e:
