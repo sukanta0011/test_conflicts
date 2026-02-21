@@ -41,6 +41,7 @@ class MyMLX:
                 self.mlx, self.w, self.h)
             self.mlx.static_bg = ImageOperations.generate_blank_image(
                 self.mlx, self.w, self.h)
+            self.set_background(self.mlx.buff_img, (0, 0), self.w, self.h)
             self.set_background(self.mlx.static_bg, (0, 0), self.w, self.h)
             # print(f"Buffer image: {self.mlx.mlx.mlx_get_data_addr(
             # self.mlx.buff_img.img)}")
@@ -97,7 +98,8 @@ class MyMLX:
         else:
             print("Error: buffer image is not set")
 
-    def set_background(self, img: ImgData, center: Tuple,
+    @staticmethod
+    def set_background(img: ImgData, center: Tuple,
                        w: int, h: int, color=0xFF000000):
         if w > img.w:
             w = img.w
