@@ -11,14 +11,14 @@ class MazeParams:
         # 0xFFFFFF(FF) -> blue
 
         # Dimensions are in pixels
-        self.grid_size = 20
-        self.wall_thickness = 2
+        self.grid_size = 50
+        self.wall_thickness = 5
         self.bg_color = 0xFF000000
         self.wall_color = 0xFFFF0000
         self.color_42 = 0xFFFF00FF
         self.entry_color = 0xFF00FF00
         self.exit_color = 0xFFFF0000
-        self.path_color = 0xFF50FFFF
+        self.path_color = 0xFF008FFF
         self.maze_visible = False
         self.path_visible = False
         self.win_w = 500

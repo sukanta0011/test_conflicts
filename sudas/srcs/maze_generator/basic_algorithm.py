@@ -16,13 +16,13 @@ class BasicAlgorithm(Algorithm):
             self.visited.update(cells_42)
         for r in range(self.grid.height):
             for c in range(self.grid.width):
-                if (r, c) not in self.visited and random.random() > 0.50:
-                    unknow_neighbours = self.get_unknow_neighbour((r, c))
-                    self.open_wall(unknow_neighbours, (r, c))
+                if (r, c) not in self.visited and random.random() > 0.5:
+                    unknown_neighbors = self.get_unknown_neighbor((r, c))
+                    self.open_wall(unknown_neighbors, (r, c))
         for r in range(self.grid.height):
             for c in range(self.grid.width):
                 if self.grid.cells[r][c] == 0:
-                    self.grid.cells[r][c] = 9
+                    self.grid.cells[r][c] = 13
 
         return self.grid
 
@@ -46,34 +46,34 @@ class BasicAlgorithm(Algorithm):
             self.grid.cells[row_next][col_next] &=\
                 ~current_wall.opposite()
 
-    def get_unknow_neighbour(
+    def get_unknown_neighbor(
             self, cur_cell: Tuple[int, int]) -> List[Tuple[int, int]]:
-        unknown_neighbours: List[Tuple[int, int]] = []
+        unknown_neighbors: List[Tuple[int, int]] = []
         curr_val = self.grid.cells[cur_cell[0]][cur_cell[1]]
         if curr_val >> 0 & 1:
-            neighbour_pos = (cur_cell[0] - 1, cur_cell[1])
-            if (self.is_coord_in_boundry(neighbour_pos) and
-               neighbour_pos not in self.visited):
-                unknown_neighbours.append(neighbour_pos)
+            neighbor_pos = (cur_cell[0] - 1, cur_cell[1])
+            if (self.is_coord_in_boundary(neighbor_pos) and
+               neighbor_pos not in self.visited):
+                unknown_neighbors.append(neighbor_pos)
         if curr_val >> 1 & 1:
-            neighbour_pos = (cur_cell[0], cur_cell[1] + 1)
-            if (self.is_coord_in_boundry(neighbour_pos) and
-               neighbour_pos not in self.visited):
-                unknown_neighbours.append(neighbour_pos)
+            neighbor_pos = (cur_cell[0], cur_cell[1] + 1)
+            if (self.is_coord_in_boundary(neighbor_pos) and
+               neighbor_pos not in self.visited):
+                unknown_neighbors.append(neighbor_pos)
         if curr_val >> 2 & 1:
-            neighbour_pos = (cur_cell[0] + 1, cur_cell[1])
-            if (self.is_coord_in_boundry(neighbour_pos) and
-               neighbour_pos not in self.visited):
-                unknown_neighbours.append(neighbour_pos)
+            neighbor_pos = (cur_cell[0] + 1, cur_cell[1])
+            if (self.is_coord_in_boundary(neighbor_pos) and
+               neighbor_pos not in self.visited):
+                unknown_neighbors.append(neighbor_pos)
         if curr_val >> 3 & 1:
-            neighbour_pos = (cur_cell[0], cur_cell[1] - 1)
-            if (self.is_coord_in_boundry(neighbour_pos) and
-               neighbour_pos not in self.visited):
-                unknown_neighbours.append(neighbour_pos)
+            neighbor_pos = (cur_cell[0], cur_cell[1] - 1)
+            if (self.is_coord_in_boundary(neighbor_pos) and
+               neighbor_pos not in self.visited):
+                unknown_neighbors.append(neighbor_pos)
 
-        return unknown_neighbours
+        return unknown_neighbors
 
-    def is_coord_in_boundry(self, coords: Tuple[int, int]) -> bool:
+    def is_coord_in_boundary(self, coords: Tuple[int, int]) -> bool:
         if (
             0 <= coords[0] < self.config.height
             and 0 <= coords[1] < self.config.width
