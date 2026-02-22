@@ -2,6 +2,11 @@ import sys
 from .config_parser import Configuration, ConfigParser
 from pathlib import Path
 from .maze_generator import MazeGenerator
+from srcs.maze_visualizer.MazeVisualize import MazeVisualizerOne
+from srcs.maze_visualizer.MazeParams import MazeParams
+from srcs.mlx_tools.ImageOperations import (
+    TxtToImage, ImageScaler, TxtColorChanger)
+from srcs.mlx_tools.LetterToImageMapper import LetterToImageMapper
 
 
 def main():
@@ -31,7 +36,31 @@ def main():
     configuration: Configuration = ConfigParser.parse_config(Path(sys.argv[1]))
     generator = MazeGenerator(config=configuration)
     # generator.print_grid()
-    return generator
+    path = "SWSESWSESWSSSEESEEENEESESEESSSEEESSSEEENNENEE"
+    data = generator.grid.cells
+    # print(data)
+    # config: Configuration = generator.config
+    # print(config.entry)
+    try:
+        # w, h = MazeParams.get_maze_size_in_pixels(len(data[0]), len(data))
+        # print(len(data[0]), len(data))
+        maze_params = MazeParams()
+        maze_params.initialize_maze(len(data[0]), len(data))
+        # print(maze_params.win_w, maze_params.win_h)
+        visualizer = MazeVisualizerOne("A-Maze-Ing", maze_params.win_w,
+                                       maze_params.win_h, maze_params,
+                                       generator, path)
+        visualizer.set_background(visualizer.mlx.buff_img,
+                                  (0, 0), visualizer.mlx.buff_img.w,
+                                  visualizer.mlx.buff_img.w, 0xFF000000)
+        visualizer.display_maze(data, visualizer.const.wall_color)
+        visualizer.show_path(path, visualizer.const.path_color)
+        visualizer.show_user_interaction_options()
+        visualizer.put_buffer_image()
+        visualizer.start_mlx()
+    except Exception as e:
+        print(e)
+    # return generator
 
 
 if __name__ == "__main__":

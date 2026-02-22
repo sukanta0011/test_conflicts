@@ -11,6 +11,7 @@ class Configuration(BaseModel):
     exit: Tuple[int, int]
     output_file: str = Field(min_length=5)
     perfect: bool
+    seed: None | str = Field(default=None)
 
     @model_validator(mode="before")
     def create_tuples(cls, row_data: Dict) -> Dict:

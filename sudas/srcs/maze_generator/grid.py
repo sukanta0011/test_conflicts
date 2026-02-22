@@ -30,6 +30,8 @@ class Grid:
         :param width: Number of columns
         :param height: Number of rows
         """
+        self.width = width
+        self.height = height
         # Initialize all cells to 15
         self.cells = [[15 for _ in range(width)] for _ in range(height)]
         # Store grid center coordinates (row, column)
@@ -37,6 +39,9 @@ class Grid:
         self.center = tuple([height // 2, width // 2])
         # Total number of cells in the grid
         self.cells_count = width * height
+
+    def reset_cells(self):
+        self.cells = [[15 for _ in range(self.width)] for _ in range(self.height)]
 
     def __str__(self) -> str:
         """
