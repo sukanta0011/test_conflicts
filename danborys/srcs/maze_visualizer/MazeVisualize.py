@@ -1,5 +1,6 @@
 from typing import List, Tuple
 import random
+import time
 from abc import ABC, abstractmethod
 from mlx import Mlx
 from srcs.mlx_tools.BaseMLX import MyMLX
@@ -164,6 +165,7 @@ class MazeVisualizerOne(MazeVisualizer):
         if self.const.maze_visible:
             pos_x = self.entry[0] * self.const.grid_size + self.const.w_offset
             pos_y = self.entry[1] * self.const.grid_size
+            # print(pos_x, pos_y)
             for direction in path:
                 if direction == "E":
                     pos_x += self.const.grid_size
@@ -173,11 +175,21 @@ class MazeVisualizerOne(MazeVisualizer):
                     pos_y -= self.const.grid_size
                 if direction == "S":
                     pos_y += self.const.grid_size
-                if (self.const.w_offset < pos_x < self.const.win_w
-                    - self.const.w_offset) and \
-                   (0 < pos_y < self.const.win_h - 50
-                   - self.const.wall_thickness):
-                    ShapeGenerator.draw_filled_rectangle(
+                # if (self.const.w_offset < pos_x < self.const.win_w
+                #     - self.const.w_offset) and \
+                #    (0 < pos_y < self.const.win_h - 50
+                #    - self.const.wall_thickness):
+                #     ShapeGenerator.draw_filled_rectangle(
+                #             self.mlx, self.mlx.buff_img,
+                #             (pos_x + self.const.wall_thickness,
+                #                 pos_y + self.const.wall_thickness),
+                #             self.const.grid_size - self.const.wall_thickness,
+                #             self.const.grid_size - self.const.wall_thickness,
+                #             color
+                #         )
+                # else:
+                #     print("Path is outside the maze boundary")
+                ShapeGenerator.draw_filled_rectangle(
                             self.mlx, self.mlx.buff_img,
                             (pos_x + self.const.wall_thickness,
                                 pos_y + self.const.wall_thickness),
@@ -185,8 +197,6 @@ class MazeVisualizerOne(MazeVisualizer):
                             self.const.grid_size - self.const.wall_thickness,
                             color
                         )
-                else:
-                    print("Path is outside the maze boundary")
             self.draw_start_stop()
             self.const.path_visible = True
         else:

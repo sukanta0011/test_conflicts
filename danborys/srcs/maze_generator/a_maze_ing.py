@@ -7,6 +7,7 @@ from srcs.maze_visualizer.MazeParams import MazeParams
 from srcs.mlx_tools.ImageOperations import (
     TxtToImage, ImageScaler, TxtColorChanger)
 from srcs.mlx_tools.LetterToImageMapper import LetterToImageMapper
+from srcs.maze_generator.solver import Solver
 
 
 def main():
@@ -36,11 +37,14 @@ def main():
     configuration: Configuration = ConfigParser.parse_config(Path(sys.argv[1]))
     generator = MazeGenerator(config=configuration)
     # generator.print_grid()
-    path = "SWSESWSESWSSSEESEEENEESESEESSSEEESSSEEENNENEE"
+    # path = "EEESEENEEESSWWWWSESWWNNWNWSWSSESSWSSSENNENESSSENEESEENES"
     data = generator.grid.cells
     # print(data)
     # config: Configuration = generator.config
     # print(config.entry)
+    solver = Solver(generator.grid, configuration)
+    path = solver.find_path()[0]
+    # print(path)
     try:
         # w, h = MazeParams.get_maze_size_in_pixels(len(data[0]), len(data))
         # print(len(data[0]), len(data))
