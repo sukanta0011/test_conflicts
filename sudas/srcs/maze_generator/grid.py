@@ -55,8 +55,8 @@ class Grid:
         Debug helper. Prints the grid in hexadecimal format
         """
         for row in self.cells:
-            print([hex(cell).removeprefix("0x").upper()
-                   for cell in row])
+            print("".join([hex(cell).removeprefix("0x").upper()
+                   for cell in row]))
 
 
 class Wall(IntEnum):

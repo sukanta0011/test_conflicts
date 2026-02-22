@@ -41,6 +41,7 @@ def main():
     # print(data)
     # config: Configuration = generator.config
     # print(config.entry)
+    print(generator.grid)
     try:
         # w, h = MazeParams.get_maze_size_in_pixels(len(data[0]), len(data))
         # print(len(data[0]), len(data))

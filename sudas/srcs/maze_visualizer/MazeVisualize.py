@@ -39,7 +39,8 @@ class MazeVisualizer(MyMLX, ABC):
                                 self.w, self.h, 0xFF000000)
             grid = self.generator.algorithm.generate()
             self.display_maze(grid.cells, self.const.wall_color)
-            self.show_path(self.path)
+            if self.const.path_visible:
+                self.show_path(self.path)
             self.show_user_interaction_options()
             self.put_buffer_image()
         if key_num == 50 or key_num == 65433:  # 2
