@@ -1,5 +1,5 @@
 from typing import Tuple
-from srcs.mlx_tools.BaseMLX import MlxVarWithLetters, MyMLX
+from srcs.mlx_tools.BaseMLX import MlxVarWithLetters
 from srcs.mlx_tools.mlx_errors import (
     ImgError
 )
@@ -32,13 +32,8 @@ class LetterToImageMapper:
                 self.num, 55, 45, 0, 30, w, h, 528)
             self.extract_different_letter_types(
                 self.symbols, 55, 45, 0, 30, w, h, 712)
-            self.mlx.base_letter_map[" "] = \
-                ImageOperations.generate_blank_image(self.mlx, 30, 50)
-            MyMLX.set_background(
-                self.mlx.base_letter_map[" "], (0, 0),
-                self.mlx.base_letter_map[" "].w,
-                self.mlx.base_letter_map[" "].h,
-                0x000000FF)
+            self.mlx.base_letter_map[" "] = ImageOperations.generate_blank_image(
+                self.mlx, 30, 50)
         except ImgError as e:
             raise ImgError(f"{type(e).__name__}: {e}")
 

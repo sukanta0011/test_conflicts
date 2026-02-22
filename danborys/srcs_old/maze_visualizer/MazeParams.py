@@ -11,8 +11,8 @@ class MazeParams:
         # 0xFFFFFF(FF) -> blue
 
         # Dimensions are in pixels
-        self.grid_size = 10
-        self.wall_thickness = 2
+        self.grid_size = 30
+        self.wall_thickness = 5
         self.bg_color = 0xFF000000
         self.wall_color = 0xFFFF0000
         self.color_42 = 0xFFFF00FF
@@ -21,9 +21,6 @@ class MazeParams:
         self.path_color = 0xFF50FFFF
         self.maze_visible = False
         self.path_visible = False
-        self.win_w = 500
-        self.win_h = 50
-        self.w_offset = 0
 
     @staticmethod
     def get_maze_size_in_pixels(rows: int, columns: int) -> Tuple:
@@ -34,20 +31,5 @@ class MazeParams:
         const = MazeParams()
         w = rows * const.grid_size + const.wall_thickness
         # 100 pixels in is used for additional information
-        h = columns * const.grid_size + const.wall_thickness + 50
+        h = columns * const.grid_size + const.wall_thickness + 100
         return (w, h)
-
-    def initialize_maze(self, rows: int, columns: int) -> None:
-        if rows <= 0 or columns <= 0:
-            raise ValueError(
-                "TO get maze size in pixels, please provide "
-                f"positive rows ({rows}) and columns ({columns}).")
-        w = rows * self.grid_size + self.wall_thickness
-        h = columns * self.grid_size + self.wall_thickness + 50
-        if w > self.win_w:
-            self.win_w = w
-        else:
-            self.w_offset = (self.win_w - w) // 2
-        if h > self.win_h:
-            self.win_h = h
-
