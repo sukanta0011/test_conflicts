@@ -7,35 +7,56 @@ from srcs.mlx_tools.ImageOperations import ImageOperations, ImgData
 
 
 class ShapeGenerator:
+    """Static utility class for drawing geometric primitives onto image buffers.
+
+    This class provides methods to render basic shapes like lines, hollow squares, 
+    and filled rectangles by directly manipulating the underlying pixel data 
+    of an ImgData object.
+    """
     @staticmethod
     def draw_line(mlx_var: MlxVar, img: ImgData, coordinate: Tuple[int, int],
                   len: int, direction: str = "v",
                   color: int = 0xFFFFFFFF, thickness: int = 1) -> None:
+        """Draws a horizontal or vertical line with specified thickness.
+
+        Args:
+            mlx_var: The MLX state container.
+            img: The destination image buffer.
+            coordinate: The starting (x, y) position of the line.
+            len: The length of the line in pixels.
+            direction: 'h' for horizontal, 'v' for vertical.
+            color: Hexadecimal color (ARGB).
+            thickness: Width of the line in pixels.
+
+        Raises:
+            ParametersError: If coordinates are non-integers, out of range, 
+                or if an invalid direction is provided.
+        """
         x, y = coordinate
         if not isinstance(x, int) or not isinstance(y, int):
             raise ParametersError(
                 "Drawing line failed, center coordinate need to be "
                 f"integer ({coordinate})")
         if direction == "h":
-            if x < 0 or x + len > img.w:
-                raise ParametersError(
-                    "Drawing line failed. x coordinate out of range, "
-                    f"({x}, {x + len})")
-            if y - thickness // 2 > 0:
-                y -= thickness // 2
+            draw_start = max(0, x)
+            draw_end = min(img.w, x + len)
+
+            y_start = y - (thickness // 2)
             for i in range(thickness):
-                for j in range(x, x + len):
-                    ImageOperations.set_pixel(img, (j, y + i), color)
+                if y_start + i < 0 or y_start + i >= img.h:
+                    continue
+                if draw_start < draw_end:
+                    for j in range(draw_start, draw_end):
+                        ImageOperations.set_pixel(img, (j, y_start + i), color)
         elif direction == "v":
-            if y < 0 or y + len > img.h:
-                raise ParametersError(
-                    "Drawing line failed. xy coordinate out of range, "
-                    f"({y}, {y + len})")
-            if x - thickness // 2 > 0:
-                x -= thickness // 2
+            draw_start = max(0, y)
+            draw_end = min(img.h, x + len)
+            x_start = x - thickness // 2
             for i in range(thickness):
-                for j in range(y, y + len):
-                    ImageOperations.set_pixel(img, (x + i, j), color)
+                if x_start + i < 0 or x_start + i >= img.w:
+                    continue
+                for j in range(draw_start, draw_end):
+                    ImageOperations.set_pixel(img, (x_start + i, j), color)
         else:
             raise ParametersError(f"Drawing line failed. Unknown direction: "
                   f"{direction}. Allowed directions are 'v' and 'h'")
@@ -44,6 +65,20 @@ class ShapeGenerator:
     def draw_hollow_square(mlx_var: MlxVar, img: ImgData,
                            center: Tuple[int, int],
                            len: int, color: int = 0xFFFFFFFF) -> None:
+        """Draws a hollow square centered around a specific coordinate.
+
+        Constructs the square by calling `draw_line` for each of the four sides.
+
+        Args:
+            mlx_var: The MLX state container.
+            img: The destination image buffer.
+            center: The (x, y) center point of the square.
+            len: The side length of the square.
+            color: Hexadecimal color (ARGB).
+
+        Raises:
+            ImgError: If the square exceeds image boundaries or calculation fails.
+        """
         try:
             x, y = center
             if not isinstance(x, int) or not isinstance(y, int):
@@ -65,6 +100,19 @@ class ShapeGenerator:
     def draw_filled_rectangle(mlx_var: MlxVar, img: ImgData,
                               center: Tuple[int, int], h: int, w: int,
                               color: int = 0xFFFFFFFF) -> None:
+        """Draws a solid filled rectangle.
+
+        Args:
+            mlx_var: The MLX state container.
+            img: The destination image buffer.
+            center: The (x, y) top-left coordinate of the rectangle.
+            h: Height of the rectangle.
+            w: Width of the rectangle.
+            color: Hexadecimal color (ARGB).
+
+        Raises:
+            ImgError: If the rectangle exceeds image boundaries.
+        """
         try:
             x, y = center
             if not isinstance(x, int) or not isinstance(y, int):

@@ -12,9 +12,24 @@ from srcs.maze_generator.solver import Solver
 
 
 class MazeVisualizer(MyMLX, ABC):
+    """Abstract base class for orchestrating maze rendering and user interaction.
+
+    This class integrates the MLX engine with maze generation and solving logic. 
+    It manages character mapping for UI text, handles keyboard events for 
+    real-time maze updates, and defines the structural requirements for 
+    displaying mazes and paths.
+
+    Attributes:
+        const (MazeParams): Configuration constants for colors and dimensions.
+        generator (MazeGenerator): The engine responsible for maze structure.
+        solver (Solver): The algorithm used to find the path through the maze.
+        cells (List[List[int]]): The current grid state of the maze.
+        txt_to_image (TxtToImage): Pipeline for rendering styled UI text.
+    """
     def __init__(self, name: str, w: int, h: int,
                  const: MazeParams, generator: MazeGenerator,
-                 path: str, solver: Solver,):
+                 path: str, solver: Solver):
+        """Initializes the visualizer and sets up the graphical environment."""
         super().__init__(name, w, h)
         self.const = const
         self.generator = generator
@@ -26,6 +41,11 @@ class MazeVisualizer(MyMLX, ABC):
         self.init_letter_map()
 
     def init_letter_map(self) -> None:
+        """Initializes the font system and configures the text processing pipeline.
+
+        Loads the alphabet sprite sheet and adds scaling and coloring stages 
+        to the text rendering engine.
+        """
         letter_to_img_map = LetterToImageMapper(self.mlx)
         letter_to_img_map.create_map()
 
@@ -36,6 +56,18 @@ class MazeVisualizer(MyMLX, ABC):
         self.txt_to_image.add_stages(TxtColorChanger())
 
     def mykey(self, key_num: int, mlx_var: MlxVar) -> None:
+        """Handles keyboard input to trigger maze actions.
+
+        Mapped Actions:
+            - '1': Regenerate maze and solve path.
+            - '2': Toggle path visibility.
+            - '3': Randomize wall colors.
+            - '4': Terminate application.
+
+        Args:
+            key_num: The integer code of the pressed key.
+            mlx_var: The current MLX state.
+        """
         if key_num == 49 or key_num == 65436:  # 1
             self.set_background(self.mlx.buff_img, (0, 0),
                                 self.w, self.h, 0xFF000000)
@@ -73,13 +105,30 @@ class MazeVisualizer(MyMLX, ABC):
     @abstractmethod
     def display_maze(self, maze: List[List[int]],
                      color: int = 0xFFFFFFFF) -> None:
+        """Abstract method to render the maze grid. Must be implemented by subclasses.
+
+        Args:
+            maze: The 2D grid representation of the maze.
+            color: The color to use for the maze walls.
+        """
         pass
 
     @abstractmethod
     def show_path(self, path: str, color: int = 0xFF00000) -> None:
+        """Abstract method to render the solution path. Must be implemented by subclasses.
+
+        Args:
+            path: String representation or coordinate list of the path.
+            color: The color to use for the path line/cells.
+        """
         pass
 
     def show_user_interaction_options(self) -> None:
+        """Renders the UI legend/menu at the bottom of the maze window.
+
+        Calculates dynamic positioning to center the interaction instructions 
+        based on the window width and maze height.
+        """
         pos_x = (self.const.win_w - 430) // 2  # Text required appox 475pix
         pos_y = len(self.generator.grid.cells) * self.const.grid_size + 25
         texts = ["1: regan, ", "2: path, ", "3: color, ", "4: quit"]
@@ -89,9 +138,28 @@ class MazeVisualizer(MyMLX, ABC):
 
 
 class MazeVisualizerOne(MazeVisualizer):
+    """Specific implementation of a maze visualizer using bitmask-based wall logic.
+
+    This class interprets integers in a 2D grid as bitmasks representing walls 
+    in four directions (North, East, South, West) and renders them as a 
+    series of rectangles.
+
+    Wall Bitmask Rule:
+        0: North, 1: East, 2: South, 3: West
+        Bit value 1 indicates a closed wall, 0 indicates an open passage.
+    """
     def display_maze(self, maze: List[List[int]],
                      color: int = 0xFFFFFFFF) -> None:
-        """
+        """Renders the maze structure by iterating through cell bitmasks.
+
+        Calculates wall positions based on grid spacing and draws rectangles 
+        for each active bit. Includes a special check for the '42' center 
+        fill logic.
+
+        Args:
+            maze: 2D list of integers representing the wall bitmasks.
+            color: Hexadecimal color for the walls.
+
         Maze rule:
         0:N, 1:E, 2:S, 3:W
         0 -> open, 1 -> closed
@@ -149,6 +217,11 @@ class MazeVisualizerOne(MazeVisualizer):
         self.const.maze_visible = True
 
     def draw_start_stop(self) -> None:
+        """Highlights the entry and exit points of the maze.
+
+        Draws filled rectangles using colors defined in the configuration 
+        constants for the start (entry) and end (exit) coordinates.
+        """
         ShapeGenerator.draw_filled_rectangle(
                 self.mlx, self.mlx.buff_img,
                 (self.entry[1] * self.const.grid_size + self.const.w_offset +
@@ -171,6 +244,13 @@ class MazeVisualizerOne(MazeVisualizer):
             )
 
     def show_path(self, path: str, color: int = 0xFF00000) -> None:
+        """Renders the solution path string as a series of connected rectangles.
+
+        Args:
+            path: A string of characters ('N', 'S', 'E', 'W') representing 
+                the movement from the start point.
+            color: Hexadecimal color for the path visualization.
+        """
         if self.const.maze_visible:
             pos_x = self.entry[0] * self.const.grid_size + self.const.w_offset
             pos_y = self.entry[1] * self.const.grid_size
@@ -181,28 +261,25 @@ class MazeVisualizerOne(MazeVisualizer):
                 offset_y = self.const.wall_thickness
                 if direction == "E":
                     pos_x += self.const.grid_size
-                    # offset_y += self.const.wall_thickness
-                    # w += self.const.wall_thickness
                 if direction == "W":
                     pos_x -= self.const.grid_size
-                    # offset_y += self.const.wall_thickness
-                    # w += self.const.wall_thickness
-
                 if direction == "N":
                     pos_y -= self.const.grid_size
-                    # offset_x += self.const.wall_thickness
                 if direction == "S":
                     pos_y += self.const.grid_size
-                    # offset_x += self.const.wall_thickness
 
-                try:
+                if (self.const.w_offset <= pos_x + offset_x
+                    <= self.const.win_w - self.const.w_offset) and\
+                    (0 <= pos_y + offset_y
+                        <= self.const.win_h - self.const.txt_h):
                     ShapeGenerator.draw_filled_rectangle(
                             self.mlx, self.mlx.buff_img,
                             (pos_x + offset_x, pos_y + offset_y),
                             h, w, color
                         )
-                except Exception:
-                    pass
+                else:
+                    print("Cannot draw outside the maze")
+
             self.draw_start_stop()
             self.const.path_visible = True
         else:

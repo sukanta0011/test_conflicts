@@ -11,7 +11,20 @@ if TYPE_CHECKING:
 
 
 class ImgData:
-    """Structure for image data"""
+    """Container for MiniLibX image metadata and pixel data.
+
+    This structure mimics the underlying C struct used by MLX to handle 
+    image buffers and their properties.
+
+    Attributes:
+        img (Any): The pointer to the MLX image object.
+        w (int): Image width in pixels.
+        h (int): Image height in pixels.
+        data (memoryview | bytearray): The raw pixel data buffer.
+        sl (int): Size line (number of bytes per horizontal line).
+        bpp (int): Bits per pixel (color depth).
+        iformat (int): Endianness format of the pixel data.
+    """
     def __init__(self) -> None:
         self.img = None
         self.w = 0
@@ -23,8 +36,28 @@ class ImgData:
 
 
 class ImageOperations:
+    """Static utility class for low-level image manipulation and allocation via MLX.
+
+    This class provides core graphical operations, abstracting the complexity 
+    of raw memory buffer manipulation and MLX-specific pointer management.
+    """
     @staticmethod
     def generate_blank_image(mlx: MlxVar, w: int, h: int) -> ImgData:
+        """Allocates a new empty image buffer using the MLX library.
+
+        Args:
+            mlx (MlxVar): The MLX state container providing the MLX pointer and engine.
+            w (int): Target width of the image in pixels.
+            h (int): Target height of the image in pixels.
+
+        Returns:
+            ImgData: An initialized container holding the image pointer and its 
+                corresponding raw data address.
+
+        Raises:
+            ParametersError: If dimensions are non-positive or non-integers.
+            InitializationError: If the MLX engine fails to allocate the image.
+        """
         if w <= 0 or h <= 0:
             raise ParametersError(
                 "ParametersError: Blank image generation failed"
@@ -49,6 +82,18 @@ class ImageOperations:
 
     @staticmethod
     def xmp_to_img(mlx: MlxVar, image_loc: str) -> ImgData:
+        """Loads an XPM file from disk and initializes an ImgData container.
+
+        Args:
+            mlx (MlxVar): The MLX state container.
+            image_loc (str): Path to the .xpm file.
+
+        Returns:
+            ImgData: The container populated with loaded image data and dimensions.
+
+        Raises:
+            InitializationError: If the file is inaccessible or format is invalid.
+        """
         try:
             img = ImgData()
             result = mlx.mlx.mlx_xpm_file_to_image(mlx.mlx_ptr, image_loc)
@@ -63,6 +108,21 @@ class ImageOperations:
 
     @staticmethod
     def copy_img(dest: ImgData, src: ImgData, center: Tuple[int, int]) -> None:
+        """Copies pixel data from a source image into a destination image.
+
+        Performs boundary checking to ensure the source fits within the 
+        destination. Copies are performed via efficient memory slicing.
+
+        Args:
+            dest (ImgData): The target image buffer to modify.
+            src (ImgData): The source image buffer to copy from.
+            center (Tuple[int, int]): The (x, y) top-left starting position 
+                in the destination.
+
+        Raises:
+            ParametersError: If coordinates are invalid or source exceeds destination.
+            OperationError: If image data buffers are uninitialized.
+        """
         start_x, start_y = center
         if not isinstance(start_x, int) or not isinstance(start_y, int):
             raise ParametersError(
@@ -97,6 +157,21 @@ class ImageOperations:
 
     @staticmethod
     def crop_img(dest: ImgData, src: ImgData, center: Tuple[int, int]) -> None:
+        """Fills a destination image by cropping a portion of a source image.
+
+        Unlike copy_img, this fills the entire 'dest' buffer starting from 
+        the 'center' point of the 'src'.
+
+        Args:
+            dest (ImgData): The smaller target buffer to fill.
+            src (ImgData): The larger source buffer to crop from.
+            center (Tuple[int, int]): The (x, y) top-left starting position 
+                within the source.
+
+        Raises:
+            ParametersError: If center coordinates are out of bounds.
+            OperationError: If buffers are missing.
+        """
         start_x, start_y = center
         if not isinstance(start_x, int) or not isinstance(start_y, int):
             raise ParametersError(
@@ -131,6 +206,20 @@ class ImageOperations:
     @staticmethod
     def set_pixel(img: ImgData, center: int | Tuple[int, int],
                   color: int = 0xFFFFFFFF) -> None:
+        """Directly modifies a specific pixel in the image memory buffer.
+
+        Supports both direct index-based access and (x, y) coordinate mapping.
+
+        Args:
+            img (ImgData): The image buffer to modify.
+            center (int | Tuple[int, int]): Either a direct byte offset (int) 
+                or a coordinate pair (tuple).
+            color (int): Hexadecimal color value (ARGB) in little-endian format.
+
+        Raises:
+            ParametersError: If the pixel location is outside the allocated memory.
+            OperationError: If the underlying memoryview is inaccessible.
+        """
         if isinstance(center, int):
             # print(f"one position: {center}")
             pos = center
@@ -165,16 +254,51 @@ class ImageOperations:
 
 
 class Stages(Protocol):
+    """Structural protocol defining a processing stage for image data.
+    
+    Any class implementing a `process` method with this signature can be 
+    added to the TxtToImage pipeline (e.g., scalers, color changers).
+    """
     def process(self, mlx: MlxVar, img: ImgData,
                 factor: float = 1.0, font_color: int = 0xFFFFFFFF,
                 bg_color: int = 0x00000000) -> ImgData:
+        """Processes the input image and returns a modified version.
+
+        Args:
+            mlx: The MLX state container.
+            img: The source image to process.
+            factor: Scaling multiplier.
+            font_color: Target hexadecimal color for the foreground.
+            bg_color: Target hexadecimal color for the background.
+
+        Returns:
+            ImgData: The newly processed image.
+        """
         pass
 
 
 class ImageScaler:
+    """A processing stage that resizes images using nearest-neighbor interpolation."""
     def process(self, mlx: MlxVar, img: ImgData,
                 factor: float = 1.0, font_color: int = 0xFFFFFFFF,
                 bg_color: int = 0x00000000) -> ImgData:
+        """Scales the source image by a given factor.
+
+        Args:
+            mlx: The MLX state container.
+            img: The source image data.
+            factor: The scale factor (must be > 0).
+            font_color: Unused in this stage.
+            bg_color: Unused in this stage.
+
+        Returns:
+            ImgData: A new, resized image buffer.
+
+        Raises:
+            ParametersError: If the scale factor is non-positive.
+            ImgError: If blank image generation fails.
+            OperationError: If source data is missing.
+        """
         if factor <= 0:
             raise ParametersError(
                 "Image scaling failed, Factor has to be "
@@ -201,9 +325,25 @@ class ImageScaler:
 
 
 class TxtColorChanger:
+    """A processing stage that rebinds colors for font glyphs."""
     def process(self, mlx: MlxVar, img: ImgData,
                 factor: float = 1.0, font_color: int = 0xFFFFFFFF,
                 bg_color: int = 0x00000000) -> ImgData:
+        """Changes the font and background colors of a glyph.
+
+        Identifies 'empty' pixels (black) and replaces them with bg_color, 
+        while replacing non-black pixels with font_color.
+
+        Args:
+            mlx: The MLX state container.
+            img: The source glyph image.
+            factor: Unused in this stage.
+            font_color: The new foreground color (ARGB).
+            bg_color: The new background color (ARGB).
+
+        Returns:
+            ImgData: A new image buffer with updated color values.
+        """
         try:
             new_img = ImageOperations.generate_blank_image(mlx, img.w, img.h)
         except ImgError as e:
@@ -227,19 +367,53 @@ class TxtColorChanger:
 
 
 class TxtToImage:
+    """Handles rendering of text strings into graphical buffers with caching.
+
+    Uses a pipeline of 'Stages' to transform base character glyphs into 
+    styled versions (scaled, colored, etc.) and maintains a cache to 
+    minimize redundant processing.
+
+    Attributes:
+        base_letter_map (Dict[str, ImgData]): Original source glyphs.
+        extended_letter_map (Dict[str, ImgData]): Cache of processed glyphs, 
+            keyed by character and style parameters.
+        stages (List[Stages]): Ordered list of transformations to apply.
+    """
     def __init__(self, base_letter_map: Dict[str, ImgData],
                  extended_letter_dict: Dict[str, ImgData]) -> None:
+        """Initializes the text renderer with a base glyph set."""
         self.stages: List[Stages] = []
         self.base_letter_map = base_letter_map
         self.extended_letter_map: Dict[str, ImgData] = {}
 
     def add_stages(self, stage: Stages) -> None:
+        """Appends a processing stage to the rendering pipeline."""
         self.stages.append(stage)
 
     def print_txt(self, mlx: MlxVar, buff_img: ImgData, txt: str,
                   origin: Tuple[int, int], factor: float = 1.0,
                   font_color: int = 0xFFFFFFFF,
                   bg_color: int = 0x00000000) -> int:
+        """Renders a string into a target image buffer.
+
+        Each character is retrieved from cache or processed through the stages 
+        if not yet cached. The characters are then blitted sequentially.
+
+        Args:
+            mlx: The MLX state container.
+            buff_img: The destination image to draw upon.
+            txt: The string to render.
+            origin: The (x, y) coordinates for the start of the text.
+            factor: Scaling factor for the text.
+            font_color: Color of the characters.
+            bg_color: Background color of the character bounding boxes.
+
+        Returns:
+            int: The resulting x-coordinate after the last character.
+
+        Raises:
+            OperationError: If rendering fails for any character in the string.
+        """
         x, y = origin
         for letter in txt:
             try:
