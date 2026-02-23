@@ -26,7 +26,7 @@ class MazeParams:
         self.w_offset = 0
 
     @staticmethod
-    def get_maze_size_in_pixels(rows: int, columns: int) -> Tuple:
+    def get_maze_size_in_pixels(rows: int, columns: int) -> Tuple[int, int]:
         if rows <= 0 or columns <= 0:
             raise ValueError(
                 "TO get maze size in pixels, please provide "
@@ -50,4 +50,3 @@ class MazeParams:
             self.w_offset = (self.win_w - w) // 2
         if h > self.win_h:
             self.win_h = h
-

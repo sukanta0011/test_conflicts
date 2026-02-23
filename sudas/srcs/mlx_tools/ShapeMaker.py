@@ -8,9 +8,9 @@ from srcs.mlx_tools.ImageOperations import ImageOperations, ImgData
 
 class ShapeGenerator:
     @staticmethod
-    def draw_line(mlx_var: MlxVar, img: ImgData, coordinate: Tuple,
+    def draw_line(mlx_var: MlxVar, img: ImgData, coordinate: Tuple[int, int],
                   len: int, direction: str = "v",
-                  color=0xFFFFFFFF, thickness: int = 1) -> None:
+                  color: int = 0xFFFFFFFF, thickness: int = 1) -> None:
         x, y = coordinate
         if not isinstance(x, int) or not isinstance(y, int):
             raise ParametersError(
@@ -41,24 +41,30 @@ class ShapeGenerator:
                   f"{direction}. Allowed directions are 'v' and 'h'")
 
     @staticmethod
-    def draw_hollow_square(mlx_var: MlxVar, img: ImgData, center: Tuple,
-                           len: int, color=0xFFFFFFFF):
+    def draw_hollow_square(mlx_var: MlxVar, img: ImgData,
+                           center: Tuple[int, int],
+                           len: int, color: int = 0xFFFFFFFF) -> None:
         try:
             x, y = center
             if not isinstance(x, int) or not isinstance(y, int):
                 raise ParametersError(
-                    "Drawing hollow square failed. center coordinate need to be "
-                    f"integer ({center})")
-            ShapeGenerator.draw_line(mlx_var, img, (x - len // 2, y + len // 2), len, "h", color)
-            ShapeGenerator.draw_line(mlx_var, img, (x - len // 2, y - len // 2), len, "h", color)
-            ShapeGenerator.draw_line(mlx_var, img, (x + len // 2, y - len // 2), len, "v", color)
-            ShapeGenerator.draw_line(mlx_var, img, (x - len // 2, y - len // 2), len, "v", color)
+                    "Drawing hollow square failed. center coordinate need "
+                    f"to be integer ({center})")
+            ShapeGenerator.draw_line(
+                mlx_var, img, (x - len // 2, y + len // 2), len, "h", color)
+            ShapeGenerator.draw_line(
+                mlx_var, img, (x - len // 2, y - len // 2), len, "h", color)
+            ShapeGenerator.draw_line(
+                mlx_var, img, (x + len // 2, y - len // 2), len, "v", color)
+            ShapeGenerator.draw_line(
+                mlx_var, img, (x - len // 2, y - len // 2), len, "v", color)
         except Exception as e:
             raise ImgError(f"Drawing hollow square failed.-> {e}")
-    
+
     @staticmethod
-    def draw_filled_rectangle(mlx_var: MlxVar, img: ImgData, center: Tuple,
-                              h: int, w: int, color=0xFFFFFFFF):
+    def draw_filled_rectangle(mlx_var: MlxVar, img: ImgData,
+                              center: Tuple[int, int], h: int, w: int,
+                              color: int = 0xFFFFFFFF) -> None:
         try:
             x, y = center
             if not isinstance(x, int) or not isinstance(y, int):

@@ -18,7 +18,7 @@ class LetterToImageMapper:
         self.symbols = ".,;:_#'!\"/?<>%&*()"
         self.mlx.letter_img = ImageOperations.xmp_to_img(self.mlx, self.image)
 
-    def create_map(self):
+    def create_map(self) -> None:
         w = 60  # Horizontal spacing between each letter
         h = 80  # Vertical spacing between each letter
         try:
@@ -44,7 +44,8 @@ class LetterToImageMapper:
 
     def extract_different_letter_types(self, symbols: str, crop_w: int,
                                        crop_h: int, x_off: int, y_off: int,
-                                       w: int, h: int, vertical_off: int):
+                                       w: int, h: int,
+                                       vertical_off: int) -> None:
         for id, letter in enumerate(symbols):
             x = id % self.letter_per_row
             y = id // self.letter_per_row
@@ -56,7 +57,7 @@ class LetterToImageMapper:
                 letter, width, crop_h,
                 (w * x + 2 + new_x_off, h * y + y_off + vertical_off))
 
-    def extract_letter_width(self, img: ImgData, center: Tuple,
+    def extract_letter_width(self, img: ImgData, center: Tuple[int, int],
                              h: int, w: int) -> Tuple[int, int]:
         start_x, start_y = center
         # print(f"Shared: {start_x, start_x + w}")
@@ -88,8 +89,9 @@ class LetterToImageMapper:
         return (left_width - start_x, (right_width - left_width))
 
     def crop_sub_image_from_image(self, key: str, w: int, h: int,
-                                  center: Tuple, color=0xFFFFFFFF,
-                                  bg_color=0x00000000):
+                                  center: Tuple[int, int],
+                                  color: int = 0xFFFFFFFF,
+                                  bg_color: int = 0x00000000) -> None:
         self.mlx.base_letter_map[key] = ImageOperations.generate_blank_image(
             self.mlx, w, h)
         ImageOperations.crop_img(self.mlx.base_letter_map[key],

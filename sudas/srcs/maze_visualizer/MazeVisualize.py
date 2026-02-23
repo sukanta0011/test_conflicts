@@ -1,8 +1,7 @@
-from typing import List, Tuple
+from typing import List
 import random
 from abc import ABC, abstractmethod
-from mlx import Mlx
-from srcs.mlx_tools.BaseMLX import MyMLX
+from srcs.mlx_tools.BaseMLX import MyMLX, MlxVar
 from srcs.mlx_tools.ShapeMaker import ShapeGenerator
 from srcs.maze_visualizer.MazeParams import MazeParams
 from srcs.mlx_tools.ImageOperations import (
@@ -26,7 +25,7 @@ class MazeVisualizer(MyMLX, ABC):
         self.cells = self.generator.grid.cells
         self.init_letter_map()
 
-    def init_letter_map(self):
+    def init_letter_map(self) -> None:
         letter_to_img_map = LetterToImageMapper(self.mlx)
         letter_to_img_map.create_map()
 
@@ -36,7 +35,7 @@ class MazeVisualizer(MyMLX, ABC):
         self.txt_to_image.add_stages(ImageScaler())
         self.txt_to_image.add_stages(TxtColorChanger())
 
-    def mykey(self, key_num, mlx_var):
+    def mykey(self, key_num: int, mlx_var: MlxVar) -> None:
         if key_num == 49 or key_num == 65436:  # 1
             self.set_background(self.mlx.buff_img, (0, 0),
                                 self.w, self.h, 0xFF000000)
@@ -72,14 +71,15 @@ class MazeVisualizer(MyMLX, ABC):
             self.stop_mlx(self.mlx)
 
     @abstractmethod
-    def display_maze(self, maze: List[List[int]], color=0xFFFFFFFF) -> None:
+    def display_maze(self, maze: List[List[int]],
+                     color: int = 0xFFFFFFFF) -> None:
         pass
 
     @abstractmethod
-    def show_path(self, path: str, color=0xFF00000) -> None:
+    def show_path(self, path: str, color: int = 0xFF00000) -> None:
         pass
 
-    def show_user_interaction_options(self):
+    def show_user_interaction_options(self) -> None:
         pos_x = (self.const.win_w - 430) // 2  # Text required appox 475pix
         pos_y = len(self.generator.grid.cells) * self.const.grid_size + 25
         texts = ["1: regan, ", "2: path, ", "3: color, ", "4: quit"]
@@ -89,7 +89,8 @@ class MazeVisualizer(MyMLX, ABC):
 
 
 class MazeVisualizerOne(MazeVisualizer):
-    def display_maze(self, maze: List[List[int]], color=0xFFFFFFFF) -> None:
+    def display_maze(self, maze: List[List[int]],
+                     color: int = 0xFFFFFFFF) -> None:
         """
         Maze rule:
         0:N, 1:E, 2:S, 3:W
@@ -108,6 +109,7 @@ class MazeVisualizerOne(MazeVisualizer):
             for bit in bits:
                 for x in range(maze_w):
                     val = maze[y][x]
+                    top_x, top_y, h, w = 0, 0, 0, 0
                     if bit == 0:
                         top_x = x * spacing + offset
                         top_y = y * spacing
@@ -146,7 +148,7 @@ class MazeVisualizerOne(MazeVisualizer):
         self.draw_start_stop()
         self.const.maze_visible = True
 
-    def draw_start_stop(self):
+    def draw_start_stop(self) -> None:
         ShapeGenerator.draw_filled_rectangle(
                 self.mlx, self.mlx.buff_img,
                 (self.entry[1] * self.const.grid_size + self.const.w_offset +
@@ -168,7 +170,7 @@ class MazeVisualizerOne(MazeVisualizer):
                 self.const.exit_color
             )
 
-    def show_path(self, path: str, color=0xFF00000) -> None:
+    def show_path(self, path: str, color: int = 0xFF00000) -> None:
         if self.const.maze_visible:
             pos_x = self.entry[0] * self.const.grid_size + self.const.w_offset
             pos_y = self.entry[1] * self.const.grid_size
@@ -206,47 +208,45 @@ class MazeVisualizerOne(MazeVisualizer):
         else:
             print("Please generate the maze first")
 
-    def calculate_h_w(self, current_dir: str, next_dir: str) -> Tuple[int, int]:
-        pass
 
+# def maze_tester():
+#     path = "SWSESWSESWSSSEESEEENEESESEESSSEEESSSEEENNENEE"
+#     from srcs.maze_generator.a_maze_ing import ma
+#     generator = main()
+#     # path = "SES"
+#     data = generator.grid.cells
+#     # print(data)
+#     config: Configuration = generator.config
+#     # print(config.entry)
+#     try:
+#         # w, h = MazeParams.get_maze_size_in_pixels(len(data[0]), len(data))
+#         # print(len(data[0]), len(data))
+#         maze_params = MazeParams()
+#         maze_params.initialize_maze(len(data[0]), len(data))
+#         # print(maze_params.win_w, maze_params.win_h)
+#         visualizer = MazeVisualizerOne("A-Maze-Ing", maze_params.win_w,
+#                                        maze_params.win_h, config.entry,
+#                                        config.exit, maze_params, data, path)
+#         visualizer.set_background(visualizer.mlx.buff_img,
+#                                   (0, 0), visualizer.mlx.buff_img.w,
+#                                   visualizer.mlx.buff_img.w, 0xFF000000)
+#         letter_to_img_map = LetterToImageMapper(visualizer.mlx)
+#         letter_to_img_map.create_map()
 
-def maze_tester():
-    path = "SWSESWSESWSSSEESEEENEESESEESSSEEESSSEEENNENEE"
-    from srcs.maze_generator.a_maze_ing import ma
-    generator = main()
-    # path = "SES"
-    data = generator.grid.cells
-    # print(data)
-    config: Configuration = generator.config
-    # print(config.entry)
-    try:
-        # w, h = MazeParams.get_maze_size_in_pixels(len(data[0]), len(data))
-        # print(len(data[0]), len(data))
-        maze_params = MazeParams()
-        maze_params.initialize_maze(len(data[0]), len(data))
-        # print(maze_params.win_w, maze_params.win_h)
-        visualizer = MazeVisualizerOne("A-Maze-Ing", maze_params.win_w,
-                                       maze_params.win_h, config.entry,
-                                       config.exit, maze_params, data, path)
-        visualizer.set_background(visualizer.mlx.buff_img,
-                                  (0, 0), visualizer.mlx.buff_img.w,
-                                  visualizer.mlx.buff_img.w, 0xFF000000)
-        letter_to_img_map = LetterToImageMapper(visualizer.mlx)
-        letter_to_img_map.create_map()
-
-        txt_to_image = TxtToImage(
-            visualizer.mlx.base_letter_map,
-            visualizer.mlx.extended_letter_map)
-        txt_to_image.add_stages(ImageScaler())
-        txt_to_image.add_stages(TxtColorChanger())
-        visualizer.display_maze(data, visualizer.const.wall_color)
-        visualizer.show_path(path, visualizer.const.path_color)
-        visualizer.show_user_interaction_options(txt_to_image)
-        visualizer.put_buffer_image()
-        visualizer.start_mlx()
-    except Exception as e:
-        print(e)
+#         txt_to_image = TxtToImage(
+#             visualizer.mlx.base_letter_map,
+#             visualizer.mlx.extended_letter_map)
+#         txt_to_image.add_stages(ImageScaler())
+#         txt_to_image.add_stages(TxtColorChanger())
+#         visualizer.display_maze(data, visualizer.const.wall_color)
+#         visualizer.show_path(path, visualizer.const.path_color)
+#         visualizer.show_user_interaction_options(txt_to_image)
+#         visualizer.put_buffer_image()
+#         visualizer.start_mlx()
+#     except Exception as e:
+#         print(e)
 
 
 if __name__ == "__main__":
-    maze_tester()
+    pass
+    # maze_tester()

@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 class ImgData:
     """Structure for image data"""
-    def __init__(self):
+    def __init__(self) -> None:
         self.img = None
         self.w = 0
         self.h = 0
@@ -96,7 +96,7 @@ class ImageOperations:
                 )
 
     @staticmethod
-    def crop_img(dest: ImgData, src: ImgData, center: Tuple) -> None:
+    def crop_img(dest: ImgData, src: ImgData, center: Tuple[int, int]) -> None:
         start_x, start_y = center
         if not isinstance(start_x, int) or not isinstance(start_y, int):
             raise ParametersError(
@@ -129,7 +129,8 @@ class ImageOperations:
                 )
 
     @staticmethod
-    def set_pixel(img: ImgData, center: int | Tuple, color=0xFFFFFFFF) -> None:
+    def set_pixel(img: ImgData, center: int | Tuple[int, int],
+                  color: int = 0xFFFFFFFF) -> None:
         if isinstance(center, int):
             # print(f"one position: {center}")
             pos = center
@@ -165,15 +166,15 @@ class ImageOperations:
 
 class Stages(Protocol):
     def process(self, mlx: MlxVar, img: ImgData,
-                factor: float = 1.0, font_color=0xFFFFFFFF,
-                bg_color=0x00000000) -> ImgData:
+                factor: float = 1.0, font_color: int = 0xFFFFFFFF,
+                bg_color: int = 0x00000000) -> ImgData:
         pass
 
 
 class ImageScaler:
     def process(self, mlx: MlxVar, img: ImgData,
-                factor: float = 1.0, font_color=0xFFFFFFFF,
-                bg_color=0x00000000) -> ImgData:
+                factor: float = 1.0, font_color: int = 0xFFFFFFFF,
+                bg_color: int = 0x00000000) -> ImgData:
         if factor <= 0:
             raise ParametersError(
                 "Image scaling failed, Factor has to be "
@@ -201,8 +202,8 @@ class ImageScaler:
 
 class TxtColorChanger:
     def process(self, mlx: MlxVar, img: ImgData,
-                factor: float = 1.0, font_color=0xFFFFFFFF,
-                bg_color=0x00000000) -> ImgData:
+                factor: float = 1.0, font_color: int = 0xFFFFFFFF,
+                bg_color: int = 0x00000000) -> ImgData:
         try:
             new_img = ImageOperations.generate_blank_image(mlx, img.w, img.h)
         except ImgError as e:
@@ -232,12 +233,13 @@ class TxtToImage:
         self.base_letter_map = base_letter_map
         self.extended_letter_map: Dict[str, ImgData] = {}
 
-    def add_stages(self, stage: Stages):
+    def add_stages(self, stage: Stages) -> None:
         self.stages.append(stage)
 
     def print_txt(self, mlx: MlxVar, buff_img: ImgData, txt: str,
-                  origin: Tuple, factor: float = 1.0, font_color=0xFFFFFFFF,
-                  bg_color=0x00000000) -> int:
+                  origin: Tuple[int, int], factor: float = 1.0,
+                  font_color: int = 0xFFFFFFFF,
+                  bg_color: int = 0x00000000) -> int:
         x, y = origin
         for letter in txt:
             try:
@@ -262,57 +264,58 @@ class TxtToImage:
         return x
 
 
-def tester():
-    from srcs.mlx_tools.LetterToImageMapper import LetterToImageMapper
-    from srcs.mlx_tools.BaseMLX import MyMLX
-    try:
-        mlx = MyMLX(1000, 800)
-        # image = "images/alphabets.xpm"
-        letter_map = LetterToImageMapper(mlx.mlx)
-        # copy_img_to_buffer(mlx.mlx.buff_img, mlx.mlx.letter_img, (0, 0))
-        letter_map.create_map()
-        ImageOperations.copy_img(
-            mlx.mlx.buff_img, mlx.mlx.base_letter_map["A"], (0, 0))
-        ImageOperations.copy_img(
-            mlx.mlx.buff_img, mlx.mlx.base_letter_map["e"], (50, 0))
-        ImageOperations.copy_img(
-            mlx.mlx.buff_img, mlx.mlx.base_letter_map["1"], (150, 0))
-        ImageOperations.copy_img(
-            mlx.mlx.buff_img, mlx.mlx.base_letter_map["("], (100, 0))
-        ImageOperations.copy_img(
-            mlx.mlx.buff_img, mlx.mlx.base_letter_map[")"], (200, 0))
-        scaler = ImageScaler()
-        scaled_a = scaler.process(mlx.mlx, mlx.mlx.base_letter_map["A"], 0.5)
-        ImageOperations.copy_img(mlx.mlx.buff_img, scaled_a, (250, 0))
+# def tester():
+#     from srcs.mlx_tools.LetterToImageMapper import LetterToImageMapper
+#     from srcs.mlx_tools.BaseMLX import MyMLX
+#     try:
+#         mlx = MyMLX(1000, 800)
+#         # image = "images/alphabets.xpm"
+#         letter_map = LetterToImageMapper(mlx.mlx)
+#         # copy_img_to_buffer(mlx.mlx.buff_img, mlx.mlx.letter_img, (0, 0))
+#         letter_map.create_map()
+#         ImageOperations.copy_img(
+#             mlx.mlx.buff_img, mlx.mlx.base_letter_map["A"], (0, 0))
+#         ImageOperations.copy_img(
+#             mlx.mlx.buff_img, mlx.mlx.base_letter_map["e"], (50, 0))
+#         ImageOperations.copy_img(
+#             mlx.mlx.buff_img, mlx.mlx.base_letter_map["1"], (150, 0))
+#         ImageOperations.copy_img(
+#             mlx.mlx.buff_img, mlx.mlx.base_letter_map["("], (100, 0))
+#         ImageOperations.copy_img(
+#             mlx.mlx.buff_img, mlx.mlx.base_letter_map[")"], (200, 0))
+#         scaler = ImageScaler()
+#         scaled_a = scaler.process(mlx.mlx, mlx.mlx.base_letter_map["A"], 0.5)
+#         ImageOperations.copy_img(mlx.mlx.buff_img, scaled_a, (250, 0))
 
-        letter_color = TxtColorChanger()
-        colored_a = letter_color.process(mlx.mlx, mlx.mlx.base_letter_map["A"])
+#         letter_color = TxtColorChanger()
+#         colored_a = letter_color.process(mlx.mlx,
+#                       mlx.mlx.base_letter_map["A"])
 
-        txt_to_img = TxtToImage(mlx.mlx.base_letter_map,
-                                mlx.mlx.extended_letter_map)
-        txt_to_img.add_stages(scaler)
-        txt_to_img.add_stages(letter_color)
-        txt_to_img.print_txt(mlx.mlx, mlx.mlx.buff_img,
-                             "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-                             (0, 180), 0.5)
-        txt_to_img.print_txt(mlx.mlx, mlx.mlx.buff_img,
-                             "abcdefghijklmnopqrstuvwxyz",
-                             (0, 260))
-        txt_to_img.print_txt(mlx.mlx, mlx.mlx.buff_img,
-                             "0123456789",
-                             (0, 340))
-        txt_to_img.print_txt(mlx.mlx, mlx.mlx.buff_img,
-                             ".,;:_#'!\"/?<>%&*()",
-                             (0, 420))
+#         txt_to_img = TxtToImage(mlx.mlx.base_letter_map,
+#                                 mlx.mlx.extended_letter_map)
+#         txt_to_img.add_stages(scaler)
+#         txt_to_img.add_stages(letter_color)
+#         txt_to_img.print_txt(mlx.mlx, mlx.mlx.buff_img,
+#                              "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+#                              (0, 180), 0.5)
+#         txt_to_img.print_txt(mlx.mlx, mlx.mlx.buff_img,
+#                              "abcdefghijklmnopqrstuvwxyz",
+#                              (0, 260))
+#         txt_to_img.print_txt(mlx.mlx, mlx.mlx.buff_img,
+#                              "0123456789",
+#                              (0, 340))
+#         txt_to_img.print_txt(mlx.mlx, mlx.mlx.buff_img,
+#                              ".,;:_#'!\"/?<>%&*()",
+#                              (0, 420))
 
-        ImageOperations.copy_img(mlx.mlx.buff_img, colored_a, (300, 0))
+#         ImageOperations.copy_img(mlx.mlx.buff_img, colored_a, (300, 0))
 
-        mlx.mlx.mlx.mlx_put_image_to_window(
-            mlx.mlx.mlx_ptr, mlx.mlx.win_ptr, mlx.mlx.buff_img.img, 0, 0)
-        mlx.start_mlx()
-    except Exception as e:
-        print(f"{type(e).__name__}: {e}")
+#         mlx.mlx.mlx.mlx_put_image_to_window(
+#             mlx.mlx.mlx_ptr, mlx.mlx.win_ptr, mlx.mlx.buff_img.img, 0, 0)
+#         mlx.start_mlx()
+#     except Exception as e:
+#         print(f"{type(e).__name__}: {e}")
 
 
-if __name__ == "__main__":
-    tester()
+# if __name__ == "__main__":
+#     tester()

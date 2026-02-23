@@ -1,4 +1,4 @@
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Any
 from mlx import Mlx
 from srcs.mlx_tools.mlx_errors import MLXError
 from srcs.mlx_tools.ImageOperations import ImgData, ImageOperations
@@ -6,7 +6,7 @@ from srcs.mlx_tools.ImageOperations import ImgData, ImageOperations
 
 class MlxVar:
     def __init__(self) -> None:
-        self.mlx = None
+        self.mlx = Mlx()
         self.mlx_ptr = None
         self.win_ptr = None
         self.screen_w = 0
@@ -24,16 +24,15 @@ class MlxVarWithLetters(MlxVar):
 
 
 class MyMLX:
-    def __init__(self, name: str, w: int, h: int):
+    def __init__(self, name: str, w: int, h: int) -> None:
         self.name = name
         self.w = w
         self.h = h
         self.mlx = MlxVarWithLetters()
         self.init_mlx()
 
-    def init_mlx(self):
+    def init_mlx(self) -> None:
         try:
-            self.mlx.mlx = Mlx()
             self.mlx.mlx_ptr = self.mlx.mlx.mlx_init()
             self.mlx.win_ptr = self.mlx.mlx.mlx_new_window(
                 self.mlx.mlx_ptr, self.w, self.h, self.name)
@@ -58,14 +57,14 @@ class MyMLX:
     def get_mlx(self) -> MlxVar:
         return self.mlx
 
-    def start_mlx(self):
+    def start_mlx(self) -> None:
         self.mlx.mlx.mlx_loop(self.mlx.mlx_ptr)
 
-    def stop_mlx(self, mlx_var):
+    def stop_mlx(self, mlx_var: MlxVar) -> None:
         self.mlx.mlx.mlx_loop_exit(self.mlx.mlx_ptr)
         self.clean_mlx()
 
-    def clean_mlx(self):
+    def clean_mlx(self) -> None:
         self.mlx.mlx.mlx_destroy_image(self.mlx.mlx_ptr,
                                        self.mlx.buff_img.img)
         self.mlx.mlx.mlx_destroy_image(self.mlx.mlx_ptr,
@@ -81,16 +80,16 @@ class MyMLX:
                 self.mlx.mlx.mlx_destroy_image(self.mlx.mlx_ptr, val.img)
         self.mlx.mlx.mlx_destroy_window(self.mlx.mlx_ptr, self.mlx.win_ptr)
 
-    def mymouse(self, button, x, y, mystuff):
+    def mymouse(self, button: int, x: int, y: int, mystuff: Any) -> None:
         print(f"Got mouse event! button {button} at {x},{y}.")
 
-    def mykey(self, key_num, mlx_var):
+    def mykey(self, key_num: int, mlx_var: MlxVar) -> None:
         pass
         # print(f"Got key {keynum}, and got my stuff back:")
         # if keynum == 112:
         #     print("Next Move")
 
-    def put_buffer_image(self):
+    def put_buffer_image(self) -> None:
         if self.mlx.buff_img is not None:
             self.mlx.mlx.mlx_put_image_to_window(
                 self.mlx.mlx_ptr, self.mlx.win_ptr, self.mlx.buff_img.img,
@@ -99,8 +98,8 @@ class MyMLX:
             print("Error: buffer image is not set")
 
     @staticmethod
-    def set_background(img: ImgData, center: Tuple,
-                       w: int, h: int, color=0xFF000000):
+    def set_background(img: ImgData, center: Tuple[int, int],
+                       w: int, h: int, color: int = 0xFF000000) -> None:
         if w > img.w:
             w = img.w
         if h > img.h:
@@ -113,5 +112,5 @@ class MyMLX:
             if img.data is not None:
                 img.data[start:end] = pixel_bytes * w
 
-    def rgb_to_hex(self, r: int = 0, g: int = 0, b: int = 0):
+    def rgb_to_hex(self, r: int = 0, g: int = 0, b: int = 0) -> int:
         return 0xFF000000 | r << 16 | g << 8 | b
