@@ -15,7 +15,7 @@ from srcs.maze_generator.solver import Solver
 class MazeVisualizer(MyMLX, ABC):
     def __init__(self, name: str, w: int, h: int,
                  const: MazeParams, generator: MazeGenerator,
-                 solver: Solver, path: 'str'):
+                 path: str, solver: Solver,):
         super().__init__(name, w, h)
         self.const = const
         self.generator = generator
@@ -23,6 +23,7 @@ class MazeVisualizer(MyMLX, ABC):
         self.entry = self.generator.config.entry
         self.exit = self.generator.config.exit
         self.path = path
+        self.cells = self.generator.grid.cells
         self.init_letter_map()
 
     def init_letter_map(self):
@@ -40,8 +41,8 @@ class MazeVisualizer(MyMLX, ABC):
             self.set_background(self.mlx.buff_img, (0, 0),
                                 self.w, self.h, 0xFF000000)
             grid = self.generator.algorithm.generate()
-            self.solver.cells = grid.cells
-            new_path = self.solver.find_path()[0]
+            new_path = self.solver.find_path(grid, self.generator.config)
+            self.cells = grid.cells
             self.display_maze(grid.cells, self.const.wall_color)
             self.show_path(self.path, self.const.bg_color)
             self.path = new_path
@@ -64,7 +65,7 @@ class MazeVisualizer(MyMLX, ABC):
             b = random.choice(color_list)
             # print(r, g, b)
             # self.display_maze(self.maze, 0xFF000000)
-            self.display_maze(self.generator.grid.cells,
+            self.display_maze(self.cells,
                               self.rgb_to_hex(r, g, b))
             self.put_buffer_image()
         if key_num == 52 or key_num == 65430:  # 4

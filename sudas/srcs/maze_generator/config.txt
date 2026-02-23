@@ -1,9 +1,9 @@
 # defualt configuration
-WIDTH=10
-HEIGHT=10
+WIDTH=200
+HEIGHT=100
 ENTRY=0,0
-EXIT=9,1
+EXIT=99,199
 OUTPUT_FILE=maze.txt
-PERFECT=True
+PERFECT=False
 SEED=
 # for pydantic 'PERFECT=yes' is 'PERFECT=True'

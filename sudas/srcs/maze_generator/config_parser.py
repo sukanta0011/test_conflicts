@@ -35,18 +35,18 @@ class Configuration(BaseModel):
             raise ValueError(" - Field 'ENTRY': contains negative coordinates")
         if self.exit[0] < 0 or self.exit[1] < 0:
             raise ValueError("- Field 'EXIT': contains negative coordinates")
-        if self.entry[0] >= self.width:
-            raise ValueError(" - Field 'ENTRY': x coordinate bigger "
-                             "than 'WIDTH'")
-        if self.entry[1] >= self.height:
-            raise ValueError(" - Field 'ENTRY': y coordinate bigger "
+        if self.entry[0] >= self.height:
+            raise ValueError(" - Field 'ENTRY': row bigger "
                              "than 'HEIGHT'")
-        if self.exit[0] >= self.width:
-            raise ValueError(" - Field 'EXIT': x coordinate bigger "
+        if self.entry[1] >= self.width:
+            raise ValueError(" - Field 'ENTRY': column bigger "
                              "than 'WIDTH'")
-        if self.exit[1] >= self.height:
-            raise ValueError(" - Field 'EXIT': y coordinate bigger "
+        if self.exit[0] >= self.height:
+            raise ValueError(" - Field 'EXIT': row coordinate bigger "
                              "than 'HEIGHT'")
+        if self.exit[1] >= self.width:
+            raise ValueError(" - Field 'EXIT': column bigger "
+                             "than 'WIDTH'")
         if not self.output_file.endswith(".txt"):
             raise ValueError(" - Field 'OUTPUT': "
                              "file name must contain '.txt'")
