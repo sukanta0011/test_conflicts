@@ -36,7 +36,6 @@ class PerfectAlgorithm(Algorithm):
                         self.grid.cells[r][c] = 9
                         self.grid.cells[r - 1][c] |= Wall.SOUTH
                         self.grid.cells[r][c - 1] |= Wall.EAST
-        self.writer.create_output(self.grid)
         return self.grid
 
     def carve_maze_from(self, first_cell: Tuple[int, int]):

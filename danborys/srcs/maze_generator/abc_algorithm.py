@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from .grid import Grid
 from .config_parser import Configuration
-from .output_writer import OutputWriter
 from typing import Tuple, Set
 
 
@@ -13,7 +12,6 @@ class Algorithm(ABC):
         super().__init__()
         self.config = config
         self.grid = Grid(config.width, config.height)
-        self.writer = OutputWriter(self.config)
 
     @abstractmethod
     def generate(self) -> Grid:
