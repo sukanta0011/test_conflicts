@@ -18,6 +18,24 @@ class PerfectAlgorithm(Algorithm):
         else:
             self.visited.update(cells_42)
             self.carve_maze_from(self.config.entry)
+        # here we test our logic
+        if not self.config.perfect:
+            self.visited = set()
+            if not isinstance(cells_42, str):
+                self.visited.update(cells_42)
+            for r in range(self.grid.height):
+                for c in range(self.grid.width):
+                    if (r, c) not in self.visited and random.random() > 0.5:
+                        unknown_neighbours = self.get_unknown_neighbour((r, c))
+                        self.open_wall(unknown_neighbours, (r, c))
+            for r in range(self.grid.height):
+                for c in range(self.grid.width):
+                    if self.grid.cells[r][c] == 0 and\
+                        self.grid.cells[r - 1][c - 1] >> 1 & 0 and\
+                        self.grid.cells[r - 1][c - 1] >> 2 & 0:
+                        self.grid.cells[r][c] = 9
+                        self.grid.cells[r - 1][c] |= Wall.SOUTH
+                        self.grid.cells[r][c - 1] |= Wall.EAST
         return self.grid
 
     def carve_maze_from(self, first_cell: Tuple[int, int]):
@@ -87,3 +105,50 @@ class PerfectAlgorithm(Algorithm):
         ):
             return True
         return False
+
+    def open_wall(self, neighbour: List[Tuple[int, int]],
+                  cur_cell: Tuple[int, int]) -> None:
+        if len(neighbour) > 0:
+            random.shuffle(neighbour)
+            row_next, col_next = neighbour[0]
+            row_cur, col_cur = cur_cell
+            self.visited.add((row_next, col_next))
+            current_wall = 0
+            if row_next > row_cur:
+                current_wall = Wall.SOUTH
+            elif row_next < row_cur:
+                current_wall = Wall.NORTH
+            elif col_next > col_cur:
+                current_wall = Wall.EAST
+            elif col_next < col_cur:
+                current_wall = Wall.WEST
+            self.grid.cells[row_cur][col_cur] &= ~current_wall
+            self.grid.cells[row_next][col_next] &=\
+                ~current_wall.opposite()
+
+    def get_unknown_neighbour(
+            self, cur_cell: Tuple[int, int]) -> List[Tuple[int, int]]:
+        unknown_neighbours: List[Tuple[int, int]] = []
+        curr_val = self.grid.cells[cur_cell[0]][cur_cell[1]]
+        if curr_val >> 0 & 1:
+            neighbour_pos = (cur_cell[0] - 1, cur_cell[1])
+            if (self.is_coord_in_boundry(neighbour_pos) and
+               neighbour_pos not in self.visited):
+                unknown_neighbours.append(neighbour_pos)
+        if curr_val >> 1 & 1:
+            neighbour_pos = (cur_cell[0], cur_cell[1] + 1)
+            if (self.is_coord_in_boundry(neighbour_pos) and
+               neighbour_pos not in self.visited):
+                unknown_neighbours.append(neighbour_pos)
+        if curr_val >> 2 & 1:
+            neighbour_pos = (cur_cell[0] + 1, cur_cell[1])
+            if (self.is_coord_in_boundry(neighbour_pos) and
+               neighbour_pos not in self.visited):
+                unknown_neighbours.append(neighbour_pos)
+        if curr_val >> 3 & 1:
+            neighbour_pos = (cur_cell[0], cur_cell[1] - 1)
+            if (self.is_coord_in_boundry(neighbour_pos) and
+               neighbour_pos not in self.visited):
+                unknown_neighbours.append(neighbour_pos)
+
+        return unknown_neighbours

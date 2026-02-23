@@ -39,6 +39,4 @@ class Solver():
                     neighbours.append(((cur_row - 1, cur_col), "N"))
                 elif wall is Wall.SOUTH:
                     neighbours.append(((cur_row + 1, cur_col), "S"))
-        # print(f"{current_cell}, val: {self.grid.cells[cur_row][cur_col]},"
-        #       f" N: {neighbours}")
         return neighbours

@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List
 from enum import IntEnum
 
 
@@ -43,42 +43,6 @@ class Grid:
     def reset_cells(self):
         self.cells = [
             [15 for _ in range(self.width)] for _ in range(self.height)]
-
-    def find_neighbours(self,
-                        cur_cell: Tuple[int, int]) -> List[Tuple[int, int]]:
-        neighbours: List[Tuple[int, int]] = []
-        left_neighbour = tuple([cur_cell[0], cur_cell[1] - 1])
-        if (
-            self.is_coord_in_boundry(left_neighbour)
-        ):
-            neighbours.append(left_neighbour)
-
-        right_neighbour = tuple([cur_cell[0], cur_cell[1] + 1])
-        if (
-            self.is_coord_in_boundry(right_neighbour)
-        ):
-            neighbours.append(right_neighbour)
-
-        up_neighbour = tuple([cur_cell[0] - 1, cur_cell[1]])
-        if (
-            self.is_coord_in_boundry(up_neighbour)
-        ):
-            neighbours.append(up_neighbour)
-
-        down_neighbour = tuple([cur_cell[0] + 1, cur_cell[1]])
-        if (
-            self.is_coord_in_boundry(down_neighbour)
-        ):
-            neighbours.append(down_neighbour)
-        return neighbours
-
-    def is_coord_in_boundry(self, coords: Tuple[int, int]) -> bool:
-        if (
-            0 <= coords[0] < self.config.height
-            and 0 <= coords[1] < self.config.width
-        ):
-            return True
-        return False
 
     def __str__(self) -> str:
         """

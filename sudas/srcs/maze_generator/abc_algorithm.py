@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from .grid import Grid
 from .config_parser import Configuration
-from typing import List, Tuple, Set
+from typing import Tuple, Set
 
 
 class Algorithm(ABC):

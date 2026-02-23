@@ -3,11 +3,11 @@ name = "a-maze-ing"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.10"
 dependencies = [
     "mlx",
     "pydantic>=2.12.5",
 ]
 
 [tool.uv.sources]
-mlx = { path = "mlx_CLXV/mlx-2.2-py3-none-any.whl" }
+mlx = { path = "mlx-2.2-py3-none-any.whl" }

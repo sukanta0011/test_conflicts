@@ -384,7 +384,7 @@ class TxtToImage:
         """Initializes the text renderer with a base glyph set."""
         self.stages: List[Stages] = []
         self.base_letter_map = base_letter_map
-        self.extended_letter_map: Dict[str, ImgData] = {}
+        self.extended_letter_map: Dict[str, ImgData] = extended_letter_dict
 
     def add_stages(self, stage: Stages) -> None:
         """Appends a processing stage to the rendering pipeline."""

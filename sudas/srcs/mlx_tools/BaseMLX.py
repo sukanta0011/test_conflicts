@@ -52,7 +52,7 @@ class MyMLX:
         """Initializes the MLX pointer, creates a window, and prepares image buffers.
 
         Sets up mouse, keyboard, and window close hooks.
-        
+
         Raises:
             MLXError: If MLX initialization, window creation, or buffer 
                 allocation fails.
@@ -98,27 +98,34 @@ class MyMLX:
             mlx_var (MlxVar): The MLX state container.
         """
         self.mlx.mlx.mlx_loop_exit(self.mlx.mlx_ptr)
-        self.clean_mlx()
+        # self.clean_mlx()
 
     def clean_mlx(self) -> None:
         """Destroys all allocated MLX images and the window to prevent memory leaks.
         
         Iterates through the letter maps and buffer images to free graphical memory.
         """
-        self.mlx.mlx.mlx_destroy_image(self.mlx.mlx_ptr,
-                                       self.mlx.buff_img.img)
-        self.mlx.mlx.mlx_destroy_image(self.mlx.mlx_ptr,
-                                       self.mlx.static_bg.img)
+        if self.mlx.buff_img.img is not None:
+            self.mlx.mlx.mlx_destroy_image(
+                self.mlx.mlx_ptr, self.mlx.buff_img.img)
+        if self.mlx.static_bg.img is not None:
+            self.mlx.mlx.mlx_destroy_image(self.mlx.mlx_ptr,
+                                           self.mlx.static_bg.img)
         if self.mlx.letter_img.img is not None:
             self.mlx.mlx.mlx_destroy_image(self.mlx.mlx_ptr,
                                            self.mlx.letter_img.img)
         if len(self.mlx.base_letter_map) > 0:
             for _, val in self.mlx.base_letter_map.items():
-                self.mlx.mlx.mlx_destroy_image(self.mlx.mlx_ptr, val.img)
-        if len(self.mlx.base_letter_map) > 0:
+                if val.img is not None:
+                    self.mlx.mlx.mlx_destroy_image(self.mlx.mlx_ptr, val.img)
+        if len(self.mlx.extended_letter_map) > 0:
             for _, val in self.mlx.extended_letter_map.items():
-                self.mlx.mlx.mlx_destroy_image(self.mlx.mlx_ptr, val.img)
-        self.mlx.mlx.mlx_destroy_window(self.mlx.mlx_ptr, self.mlx.win_ptr)
+                if val.img is not None:
+                    self.mlx.mlx.mlx_destroy_image(self.mlx.mlx_ptr, val.img)
+        if self.mlx.win_ptr is not None:
+            self.mlx.mlx.mlx_destroy_window(self.mlx.mlx_ptr, self.mlx.win_ptr)
+        if self.mlx.mlx_ptr is not None:
+            self.mlx.mlx.mlx_release(self.mlx.mlx_ptr)
 
     def mymouse(self, button: int, x: int, y: int, mystuff: Any) -> None:
         """Callback for mouse click events.

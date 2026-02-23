@@ -9,6 +9,7 @@ from srcs.mlx_tools.ImageOperations import (
 from srcs.mlx_tools.LetterToImageMapper import LetterToImageMapper
 from srcs.maze_generator.maze_generator import MazeGenerator
 from srcs.maze_generator.solver import Solver
+from srcs.maze_generator.output_writer import OutputWriter
 
 
 class MazeVisualizer(MyMLX, ABC):
@@ -28,12 +29,14 @@ class MazeVisualizer(MyMLX, ABC):
     """
     def __init__(self, name: str, w: int, h: int,
                  const: MazeParams, generator: MazeGenerator,
-                 path: str, solver: Solver):
+                 path: str, solver: Solver,
+                 output_writer: OutputWriter):
         """Initializes the visualizer and sets up the graphical environment."""
         super().__init__(name, w, h)
         self.const = const
         self.generator = generator
         self.solver = solver
+        self.output_writer = output_writer
         self.entry = self.generator.config.entry
         self.exit = self.generator.config.exit
         self.path = path
@@ -73,6 +76,7 @@ class MazeVisualizer(MyMLX, ABC):
                                 self.w, self.h, 0xFF000000)
             grid = self.generator.algorithm.generate()
             new_path = self.solver.find_path(grid, self.generator.config)
+            self.output_writer.create_output(grid, new_path)
             self.cells = grid.cells
             self.display_maze(grid.cells, self.const.wall_color)
             self.show_path(self.path, self.const.bg_color)
