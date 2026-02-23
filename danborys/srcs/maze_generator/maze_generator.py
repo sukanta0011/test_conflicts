@@ -1,7 +1,6 @@
 from .config_parser import Configuration
 from .grid import Grid
 from .abc_algorithm import Algorithm
-from .basic_algorithm import BasicAlgorithm
 from .perfect_algorithm import PerfectAlgorithm
 
 
@@ -12,10 +11,11 @@ class MazeGenerator():
 
     def __init__(self, config: Configuration) -> None:
         self.config = config
-        if config.perfect:
-            self.algorithm = PerfectAlgorithm(config)
-        else:
-            self.algorithm = BasicAlgorithm(config)
+        # if config.perfect:
+        #     self.algorithm = PerfectAlgorithm(config)
+        # else:
+        #     self.algorithm = BasicAlgorithm(config)
+        self.algorithm = PerfectAlgorithm(config)
         self.grid = self.algorithm.generate()
 
     def print_grid(self) -> None:

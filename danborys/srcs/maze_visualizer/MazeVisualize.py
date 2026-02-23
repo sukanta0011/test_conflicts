@@ -1,6 +1,5 @@
 from typing import List, Tuple
 import random
-import time
 from abc import ABC, abstractmethod
 from mlx import Mlx
 from srcs.mlx_tools.BaseMLX import MyMLX
@@ -16,8 +15,7 @@ from srcs.maze_generator.solver import Solver
 class MazeVisualizer(MyMLX, ABC):
     def __init__(self, name: str, w: int, h: int,
                  const: MazeParams, generator: MazeGenerator,
-                 path: 'str',
-                 solver: Solver):
+                 path: str, solver: Solver,):
         super().__init__(name, w, h)
         self.const = const
         self.generator = generator
@@ -25,6 +23,7 @@ class MazeVisualizer(MyMLX, ABC):
         self.entry = self.generator.config.entry
         self.exit = self.generator.config.exit
         self.path = path
+        self.cells = self.generator.grid.cells
         self.init_letter_map()
 
     def init_letter_map(self):
@@ -42,9 +41,13 @@ class MazeVisualizer(MyMLX, ABC):
             self.set_background(self.mlx.buff_img, (0, 0),
                                 self.w, self.h, 0xFF000000)
             grid = self.generator.algorithm.generate()
-            self.path = self.solver.find_path(grid, self.generator.config)
+            new_path = self.solver.find_path(grid, self.generator.config)
+            self.cells = grid.cells
             self.display_maze(grid.cells, self.const.wall_color)
-            self.show_path(self.path)
+            self.show_path(self.path, self.const.bg_color)
+            self.path = new_path
+            if self.const.path_visible:
+                self.show_path(self.path, self.const.path_color)
             self.show_user_interaction_options()
             self.put_buffer_image()
         if key_num == 50 or key_num == 65433:  # 2
@@ -62,7 +65,7 @@ class MazeVisualizer(MyMLX, ABC):
             b = random.choice(color_list)
             # print(r, g, b)
             # self.display_maze(self.maze, 0xFF000000)
-            self.display_maze(self.generator.grid.cells,
+            self.display_maze(self.cells,
                               self.rgb_to_hex(r, g, b))
             self.put_buffer_image()
         if key_num == 52 or key_num == 65430:  # 4
@@ -169,42 +172,42 @@ class MazeVisualizerOne(MazeVisualizer):
         if self.const.maze_visible:
             pos_x = self.entry[0] * self.const.grid_size + self.const.w_offset
             pos_y = self.entry[1] * self.const.grid_size
-            # print(pos_x, pos_y)
-            for direction in path:
+            for idx, direction in enumerate(path):
+                h = self.const.grid_size - self.const.wall_thickness
+                w = self.const.grid_size - self.const.wall_thickness
+                offset_x = self.const.wall_thickness
+                offset_y = self.const.wall_thickness
                 if direction == "E":
                     pos_x += self.const.grid_size
+                    # offset_y += self.const.wall_thickness
+                    # w += self.const.wall_thickness
                 if direction == "W":
                     pos_x -= self.const.grid_size
+                    # offset_y += self.const.wall_thickness
+                    # w += self.const.wall_thickness
+
                 if direction == "N":
                     pos_y -= self.const.grid_size
+                    # offset_x += self.const.wall_thickness
                 if direction == "S":
                     pos_y += self.const.grid_size
-                # if (self.const.w_offset < pos_x < self.const.win_w
-                #     - self.const.w_offset) and \
-                #    (0 < pos_y < self.const.win_h - 50
-                #    - self.const.wall_thickness):
-                #     ShapeGenerator.draw_filled_rectangle(
-                #             self.mlx, self.mlx.buff_img,
-                #             (pos_x + self.const.wall_thickness,
-                #                 pos_y + self.const.wall_thickness),
-                #             self.const.grid_size - self.const.wall_thickness,
-                #             self.const.grid_size - self.const.wall_thickness,
-                #             color
-                #         )
-                # else:
-                #     print("Path is outside the maze boundary")
-                ShapeGenerator.draw_filled_rectangle(
+                    # offset_x += self.const.wall_thickness
+
+                try:
+                    ShapeGenerator.draw_filled_rectangle(
                             self.mlx, self.mlx.buff_img,
-                            (pos_x + self.const.wall_thickness,
-                                pos_y + self.const.wall_thickness),
-                            self.const.grid_size - self.const.wall_thickness,
-                            self.const.grid_size - self.const.wall_thickness,
-                            color
+                            (pos_x + offset_x, pos_y + offset_y),
+                            h, w, color
                         )
+                except Exception:
+                    pass
             self.draw_start_stop()
             self.const.path_visible = True
         else:
             print("Please generate the maze first")
+
+    def calculate_h_w(self, current_dir: str, next_dir: str) -> Tuple[int, int]:
+        pass
 
 
 def maze_tester():

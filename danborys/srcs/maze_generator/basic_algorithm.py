@@ -16,13 +16,17 @@ class BasicAlgorithm(Algorithm):
             self.visited.update(cells_42)
         for r in range(self.grid.height):
             for c in range(self.grid.width):
-                if (r, c) not in self.visited and random.random() > 0.1:
-                    unknow_neighbours = self.get_unknow_neighbour((r, c))
-                    self.open_wall(unknow_neighbours, (r, c))
+                if (r, c) not in self.visited and random.random() > 0.5:
+                    unknown_neighbours = self.get_unknown_neighbour((r, c))
+                    self.open_wall(unknown_neighbours, (r, c))
         for r in range(self.grid.height):
             for c in range(self.grid.width):
-                if self.grid.cells[r][c] == 0:
-                    self.grid.cells[r][c] = 13
+                if self.grid.cells[r][c] == 0 and\
+                    self.grid.cells[r - 1][c - 1] >> 1 & 0 and\
+                    self.grid.cells[r - 1][c - 1] >> 2 & 0:
+                    self.grid.cells[r][c] = 9
+                    self.grid.cells[r - 1][c] |= Wall.SOUTH
+                    self.grid.cells[r][c - 1] |= Wall.EAST
 
         return self.grid
 
@@ -46,7 +50,7 @@ class BasicAlgorithm(Algorithm):
             self.grid.cells[row_next][col_next] &=\
                 ~current_wall.opposite()
 
-    def get_unknow_neighbour(
+    def get_unknown_neighbour(
             self, cur_cell: Tuple[int, int]) -> List[Tuple[int, int]]:
         unknown_neighbours: List[Tuple[int, int]] = []
         curr_val = self.grid.cells[cur_cell[0]][cur_cell[1]]
