@@ -42,9 +42,8 @@ def main():
     # print(data)
     # config: Configuration = generator.config
     # print(config.entry)
-    solver = Solver(generator.grid, configuration)
-    path = solver.find_path()[0]
-    # print(path)
+    solver = Solver()
+    path = solver.find_path(generator.grid, configuration)
     try:
         # w, h = MazeParams.get_maze_size_in_pixels(len(data[0]), len(data))
         # print(len(data[0]), len(data))
@@ -53,7 +52,7 @@ def main():
         # print(maze_params.win_w, maze_params.win_h)
         visualizer = MazeVisualizerOne("A-Maze-Ing", maze_params.win_w,
                                        maze_params.win_h, maze_params,
-                                       generator, path)
+                                       generator, path, solver)
         visualizer.set_background(visualizer.mlx.buff_img,
                                   (0, 0), visualizer.mlx.buff_img.w,
                                   visualizer.mlx.buff_img.w, 0xFF000000)

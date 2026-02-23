@@ -10,15 +10,18 @@ from srcs.mlx_tools.ImageOperations import (
     TxtToImage, ImageScaler, TxtColorChanger)
 from srcs.mlx_tools.LetterToImageMapper import LetterToImageMapper
 from srcs.maze_generator.maze_generator import MazeGenerator
+from srcs.maze_generator.solver import Solver
 
 
 class MazeVisualizer(MyMLX, ABC):
     def __init__(self, name: str, w: int, h: int,
                  const: MazeParams, generator: MazeGenerator,
-                 path: 'str'):
+                 path: 'str',
+                 solver: Solver):
         super().__init__(name, w, h)
         self.const = const
         self.generator = generator
+        self.solver = solver
         self.entry = self.generator.config.entry
         self.exit = self.generator.config.exit
         self.path = path
@@ -39,6 +42,7 @@ class MazeVisualizer(MyMLX, ABC):
             self.set_background(self.mlx.buff_img, (0, 0),
                                 self.w, self.h, 0xFF000000)
             grid = self.generator.algorithm.generate()
+            self.path = self.solver.find_path(grid, self.generator.config)
             self.display_maze(grid.cells, self.const.wall_color)
             self.show_path(self.path)
             self.show_user_interaction_options()
