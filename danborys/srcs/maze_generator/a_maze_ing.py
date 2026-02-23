@@ -8,6 +8,7 @@ from srcs.mlx_tools.ImageOperations import (
     TxtToImage, ImageScaler, TxtColorChanger)
 from srcs.mlx_tools.LetterToImageMapper import LetterToImageMapper
 from srcs.maze_generator.solver import Solver
+from .output_writer import OutputWriter
 
 
 def main():
@@ -44,6 +45,9 @@ def main():
     # print(config.entry)
     solver = Solver()
     path = solver.find_path(generator.grid, configuration)
+    output_writer = OutputWriter(configuration)
+    output_writer.create_output(generator.grid, path)
+
     try:
         # w, h = MazeParams.get_maze_size_in_pixels(len(data[0]), len(data))
         # print(len(data[0]), len(data))
