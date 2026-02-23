@@ -4,9 +4,6 @@ from pathlib import Path
 from .maze_generator import MazeGenerator
 from srcs.maze_visualizer.MazeVisualize import MazeVisualizerOne
 from srcs.maze_visualizer.MazeParams import MazeParams
-from srcs.mlx_tools.ImageOperations import (
-    TxtToImage, ImageScaler, TxtColorChanger)
-from srcs.mlx_tools.LetterToImageMapper import LetterToImageMapper
 from srcs.maze_generator.solver import Solver
 from .output_writer import OutputWriter
 
@@ -56,7 +53,7 @@ def main():
         # print(maze_params.win_w, maze_params.win_h)
         visualizer = MazeVisualizerOne("A-Maze-Ing", maze_params.win_w,
                                        maze_params.win_h, maze_params,
-                                       generator, path, solver)
+                                       generator, path, solver, output_writer)
         visualizer.set_background(visualizer.mlx.buff_img,
                                   (0, 0), visualizer.mlx.buff_img.w,
                                   visualizer.mlx.buff_img.w, 0xFF000000)
