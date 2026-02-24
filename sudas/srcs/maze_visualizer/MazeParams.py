@@ -1,10 +1,21 @@
+from dataclasses import dataclass
 from typing import Tuple
 
 
-class MazeParams:
-    """Configuration container for maze visual parameters and window dimensions.
+@dataclass
+class KeyMap:
+    """Data class to to store multiple keys for a specific action"""
+    REGEN: Tuple = (49, 65436)       # Key '1' and Numpad '1'
+    TOGGLE_PATH: Tuple = (50, 65433)  # Key '2' and Numpad '2'
+    COLOR: Tuple = (51, 65435)       # Key '3' and Numpad '3'
+    QUIT: Tuple = (52, 65430)        # Key '4' and Numpad '4'
 
-    This class manages the visual state of the maze, including color palettes 
+
+class MazeParams:
+    """Configuration container for maze visual parameters and
+    window dimensions.
+
+    This class manages the visual state of the maze, including color palettes
     (ARGB), grid dimensions, and calculated window offsets for rendering.
 
     Attributes:
@@ -35,7 +46,7 @@ class MazeParams:
         self.grid_size = 6
         self.wall_thickness = 1
         self.bg_color = 0xFF000000
-        self.wall_color = 0xFFFF0000
+        self.wall_color = 0xFFFFFFFF
         self.color_42 = 0xFFFF00FF
         self.entry_color = 0xFF00FF00
         self.exit_color = 0xFFFF0000
@@ -50,7 +61,7 @@ class MazeParams:
     def initialize_maze(self, rows: int, columns: int) -> None:
         """Sets the window size and centers the maze based on grid dimensions.
 
-        Updates `win_w`, `win_h`, and `w_offset` based on the provided 
+        Updates `win_w`, `win_h`, and `w_offset` based on the provided
         maze structure and the current `grid_size`.
 
         Args:

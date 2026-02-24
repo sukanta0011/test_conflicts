@@ -6,6 +6,7 @@ ENV_NAME = venv
 MAIN = a_maze_ing.py
 CONFIG = config.txt
 WORK_DIR = srcs
+DEBUGGER = pdb
 ALL_CACHE = $(shell find . -path "./.venv" -prune -o -name "__pycache__" -print -o -name ".mypy_cache" -print)
 VENV_PATH = $(shell find . -type d -name ".$(ENV_NAME)" -print)
 
@@ -26,13 +27,11 @@ install:
 	
 
 run:
-	@if [ ! -d ".$(ENV_NAME)" ]; then \
-		$(MAKE) install; \
-	else \
-		echo $(ENV) run $(PYTHON) $(MAIN) $(CONFIG); \
-		$(ENV) run $(PYTHON) $(MAIN) $(CONFIG); \
-	fi
+	$(ENV) run $(PYTHON) $(MAIN) $(CONFIG)
 
+debug:
+#	pdb debugger controls: n(ext), c(ont(inue)), exit
+	$(ENV) run $(PYTHON) -m $(DEBUGGER) $(MAIN) $(CONFIG)
 
 clean:
 	@if [ -n "$(ALL_CACHE)" ]; then \
@@ -55,12 +54,15 @@ fclean: clean
 		echo "There is no virtual environment";\
 	fi
 
+build:
+	$(ENV) build --out-dir .
+
 lint:
-	flake8 $(WORK_DIR)
-	mypy $(WORK_DIR) --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
+	flake8 .
+	mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
 
 lint-strict:
-	flake8 $(WORK_DIR)
-	mypy $(WORK_DIR) --strict
+	flake8 .
+	mypy . --strict
 
 .PHONY: install run debug clean fclean lint lint-strict

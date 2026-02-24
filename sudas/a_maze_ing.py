@@ -9,7 +9,7 @@ from srcs.maze_generator.output_writer import OutputWriter
 import faulthandler
 
 
-def main():
+def main() -> None:
     """
     Entry point of the A-Maze-ing application.
 
@@ -72,4 +72,3 @@ def main():
 if __name__ == "__main__":
     faulthandler.enable()
     main()
-

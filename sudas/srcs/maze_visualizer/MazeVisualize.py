@@ -1,9 +1,9 @@
-from typing import List
+from typing import List, Tuple
 import random
 from abc import ABC, abstractmethod
 from srcs.mlx_tools.BaseMLX import MyMLX, MlxVar
 from srcs.mlx_tools.ShapeMaker import ShapeGenerator
-from srcs.maze_visualizer.MazeParams import MazeParams
+from srcs.maze_visualizer.MazeParams import MazeParams, KeyMap
 from srcs.mlx_tools.ImageOperations import (
     TxtToImage, ImageScaler, TxtColorChanger)
 from srcs.mlx_tools.LetterToImageMapper import LetterToImageMapper
@@ -13,12 +13,13 @@ from srcs.maze_generator.output_writer import OutputWriter
 
 
 class MazeVisualizer(MyMLX, ABC):
-    """Abstract base class for orchestrating maze rendering and user interaction.
+    """Abstract base class for orchestrating maze rendering and user
+    interaction.
 
-    This class integrates the MLX engine with maze generation and solving logic. 
-    It manages character mapping for UI text, handles keyboard events for 
-    real-time maze updates, and defines the structural requirements for 
-    displaying mazes and paths.
+    This class integrates the MLX engine with maze generation and
+    solving logic. It manages character mapping for UI text,
+    handles keyboard events for real-time maze updates,
+    and defines the structural requirements for displaying mazes and paths.
 
     Attributes:
         const (MazeParams): Configuration constants for colors and dimensions.
@@ -44,9 +45,10 @@ class MazeVisualizer(MyMLX, ABC):
         self.init_letter_map()
 
     def init_letter_map(self) -> None:
-        """Initializes the font system and configures the text processing pipeline.
+        """Initializes the font system and configures the text processing
+          pipeline.
 
-        Loads the alphabet sprite sheet and adds scaling and coloring stages 
+        Loads the alphabet sprite sheet and adds scaling and coloring stages
         to the text rendering engine.
         """
         letter_to_img_map = LetterToImageMapper(self.mlx)
@@ -71,7 +73,7 @@ class MazeVisualizer(MyMLX, ABC):
             key_num: The integer code of the pressed key.
             mlx_var: The current MLX state.
         """
-        if key_num == 49 or key_num == 65436:  # 1
+        if key_num in KeyMap.REGEN:  # 1
             self.set_background(self.mlx.buff_img, (0, 0),
                                 self.w, self.h, 0xFF000000)
             grid = self.generator.algorithm.generate()
@@ -79,21 +81,23 @@ class MazeVisualizer(MyMLX, ABC):
             self.output_writer.create_output(grid, new_path)
             self.cells = grid.cells
             self.display_maze(grid.cells, self.const.wall_color)
-            self.show_path(self.path, self.const.bg_color)
             self.path = new_path
             if self.const.path_visible:
                 self.show_path(self.path, self.const.path_color)
             self.show_user_interaction_options()
             self.put_buffer_image()
-        if key_num == 50 or key_num == 65433:  # 2
+        if key_num in KeyMap.TOGGLE_PATH:  # 2
             if self.const.path_visible:
                 self.show_path(self.path, self.const.bg_color)
                 self.put_buffer_image()
                 self.const.path_visible = False
+                # print(f"path visible, toggle: {self.const.path_visible}")
             else:
                 self.show_path(self.path, self.const.path_color)
                 self.put_buffer_image()
-        if key_num == 51 or key_num == 65435:  # 3
+                # print(f"path visible, toggle: {self.const.path_visible}")
+
+        if key_num in KeyMap.COLOR:  # 3
             color_list = [i for i in range(256)]
             r = random.choice(color_list)
             g = random.choice(color_list)
@@ -103,13 +107,14 @@ class MazeVisualizer(MyMLX, ABC):
             self.display_maze(self.cells,
                               self.rgb_to_hex(r, g, b))
             self.put_buffer_image()
-        if key_num == 52 or key_num == 65430:  # 4
+        if key_num in KeyMap.QUIT:  # 4
             self.stop_mlx(self.mlx)
 
     @abstractmethod
     def display_maze(self, maze: List[List[int]],
                      color: int = 0xFFFFFFFF) -> None:
-        """Abstract method to render the maze grid. Must be implemented by subclasses.
+        """Abstract method to render the maze grid. Must be implemented
+        by subclasses.
 
         Args:
             maze: The 2D grid representation of the maze.
@@ -119,7 +124,8 @@ class MazeVisualizer(MyMLX, ABC):
 
     @abstractmethod
     def show_path(self, path: str, color: int = 0xFF00000) -> None:
-        """Abstract method to render the solution path. Must be implemented by subclasses.
+        """Abstract method to render the solution path. Must be implemented
+        by subclasses.
 
         Args:
             path: String representation or coordinate list of the path.
@@ -130,7 +136,7 @@ class MazeVisualizer(MyMLX, ABC):
     def show_user_interaction_options(self) -> None:
         """Renders the UI legend/menu at the bottom of the maze window.
 
-        Calculates dynamic positioning to center the interaction instructions 
+        Calculates dynamic positioning to center the interaction instructions
         based on the window width and maze height.
         """
         pos_x = (self.const.win_w - 430) // 2  # Text required appox 475pix
@@ -142,10 +148,11 @@ class MazeVisualizer(MyMLX, ABC):
 
 
 class MazeVisualizerOne(MazeVisualizer):
-    """Specific implementation of a maze visualizer using bitmask-based wall logic.
+    """Specific implementation of a maze visualizer using bitmask-based
+    wall logic.
 
-    This class interprets integers in a 2D grid as bitmasks representing walls 
-    in four directions (North, East, South, West) and renders them as a 
+    This class interprets integers in a 2D grid as bitmasks representing walls
+    in four directions (North, East, South, West) and renders them as a
     series of rectangles.
 
     Wall Bitmask Rule:
@@ -156,20 +163,13 @@ class MazeVisualizerOne(MazeVisualizer):
                      color: int = 0xFFFFFFFF) -> None:
         """Renders the maze structure by iterating through cell bitmasks.
 
-        Calculates wall positions based on grid spacing and draws rectangles 
-        for each active bit. Includes a special check for the '42' center 
+        Calculates wall positions based on grid spacing and draws rectangles
+        for each active bit. Includes a special check for the '42' center
         fill logic.
 
         Args:
             maze: 2D list of integers representing the wall bitmasks.
             color: Hexadecimal color for the walls.
-
-        Maze rule:
-        0:N, 1:E, 2:S, 3:W
-        0 -> open, 1 -> closed
-            N
-        W       E
-            S
         """
         maze_w, maze_h = len(maze[0]), len(maze)
         spacing = self.const.grid_size
@@ -223,7 +223,7 @@ class MazeVisualizerOne(MazeVisualizer):
     def draw_start_stop(self) -> None:
         """Highlights the entry and exit points of the maze.
 
-        Draws filled rectangles using colors defined in the configuration 
+        Draws filled rectangles using colors defined in the configuration
         constants for the start (entry) and end (exit) coordinates.
         """
         ShapeGenerator.draw_filled_rectangle(
@@ -248,17 +248,18 @@ class MazeVisualizerOne(MazeVisualizer):
             )
 
     def show_path(self, path: str, color: int = 0xFF00000) -> None:
-        """Renders the solution path string as a series of connected rectangles.
+        """Renders the solution path string as a series of connected
+        rectangles.
 
         Args:
-            path: A string of characters ('N', 'S', 'E', 'W') representing 
+            path: A string of characters ('N', 'S', 'E', 'W') representing
                 the movement from the start point.
             color: Hexadecimal color for the path visualization.
         """
         if self.const.maze_visible:
             pos_x = self.entry[0] * self.const.grid_size + self.const.w_offset
             pos_y = self.entry[1] * self.const.grid_size
-            for idx, direction in enumerate(path):
+            for direction in path:
                 h = self.const.grid_size - self.const.wall_thickness
                 w = self.const.grid_size - self.const.wall_thickness
                 offset_x = self.const.wall_thickness

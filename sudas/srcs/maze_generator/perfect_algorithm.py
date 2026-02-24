@@ -32,7 +32,7 @@ class PerfectAlgorithm(Algorithm):
                 for c in range(self.grid.width):
                     if self.grid.cells[r][c] == 0 and\
                         self.grid.cells[r - 1][c - 1] >> 1 & 0 and\
-                        self.grid.cells[r - 1][c - 1] >> 2 & 0:
+                            self.grid.cells[r - 1][c - 1] >> 2 & 0:
                         self.grid.cells[r][c] = 9
                         self.grid.cells[r - 1][c] |= Wall.SOUTH
                         self.grid.cells[r][c - 1] |= Wall.EAST

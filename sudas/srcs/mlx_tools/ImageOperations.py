@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 class ImgData:
     """Container for MiniLibX image metadata and pixel data.
 
-    This structure mimics the underlying C struct used by MLX to handle 
+    This structure mimics the underlying C struct used by MLX to handle
     image buffers and their properties.
 
     Attributes:
@@ -36,9 +36,10 @@ class ImgData:
 
 
 class ImageOperations:
-    """Static utility class for low-level image manipulation and allocation via MLX.
+    """Static utility class for low-level image manipulation and
+    allocation via MLX.
 
-    This class provides core graphical operations, abstracting the complexity 
+    This class provides core graphical operations, abstracting the complexity
     of raw memory buffer manipulation and MLX-specific pointer management.
     """
     @staticmethod
@@ -46,12 +47,13 @@ class ImageOperations:
         """Allocates a new empty image buffer using the MLX library.
 
         Args:
-            mlx (MlxVar): The MLX state container providing the MLX pointer and engine.
+            mlx (MlxVar): The MLX state container providing the MLX
+            pointer and engine.
             w (int): Target width of the image in pixels.
             h (int): Target height of the image in pixels.
 
         Returns:
-            ImgData: An initialized container holding the image pointer and its 
+            ImgData: An initialized container holding the image pointer and its
                 corresponding raw data address.
 
         Raises:
@@ -89,10 +91,12 @@ class ImageOperations:
             image_loc (str): Path to the .xpm file.
 
         Returns:
-            ImgData: The container populated with loaded image data and dimensions.
+            ImgData: The container populated with loaded image data
+            and dimensions.
 
         Raises:
-            InitializationError: If the file is inaccessible or format is invalid.
+            InitializationError: If the file is inaccessible or format
+            is invalid.
         """
         try:
             img = ImgData()
@@ -110,17 +114,18 @@ class ImageOperations:
     def copy_img(dest: ImgData, src: ImgData, center: Tuple[int, int]) -> None:
         """Copies pixel data from a source image into a destination image.
 
-        Performs boundary checking to ensure the source fits within the 
+        Performs boundary checking to ensure the source fits within the
         destination. Copies are performed via efficient memory slicing.
 
         Args:
             dest (ImgData): The target image buffer to modify.
             src (ImgData): The source image buffer to copy from.
-            center (Tuple[int, int]): The (x, y) top-left starting position 
+            center (Tuple[int, int]): The (x, y) top-left starting position
                 in the destination.
 
         Raises:
-            ParametersError: If coordinates are invalid or source exceeds destination.
+            ParametersError: If coordinates are invalid or source exceeds
+            destination.
             OperationError: If image data buffers are uninitialized.
         """
         start_x, start_y = center
@@ -159,13 +164,13 @@ class ImageOperations:
     def crop_img(dest: ImgData, src: ImgData, center: Tuple[int, int]) -> None:
         """Fills a destination image by cropping a portion of a source image.
 
-        Unlike copy_img, this fills the entire 'dest' buffer starting from 
+        Unlike copy_img, this fills the entire 'dest' buffer starting from
         the 'center' point of the 'src'.
 
         Args:
             dest (ImgData): The smaller target buffer to fill.
             src (ImgData): The larger source buffer to crop from.
-            center (Tuple[int, int]): The (x, y) top-left starting position 
+            center (Tuple[int, int]): The (x, y) top-left starting position
                 within the source.
 
         Raises:
@@ -212,12 +217,14 @@ class ImageOperations:
 
         Args:
             img (ImgData): The image buffer to modify.
-            center (int | Tuple[int, int]): Either a direct byte offset (int) 
+            center (int | Tuple[int, int]): Either a direct byte offset (int)
                 or a coordinate pair (tuple).
-            color (int): Hexadecimal color value (ARGB) in little-endian format.
+            color (int): Hexadecimal color value (ARGB) in
+            little-endian format.
 
         Raises:
-            ParametersError: If the pixel location is outside the allocated memory.
+            ParametersError: If the pixel location is outside the
+            allocated memory.
             OperationError: If the underlying memoryview is inaccessible.
         """
         if isinstance(center, int):
@@ -255,8 +262,8 @@ class ImageOperations:
 
 class Stages(Protocol):
     """Structural protocol defining a processing stage for image data.
-    
-    Any class implementing a `process` method with this signature can be 
+
+    Any class implementing a `process` method with this signature can be
     added to the TxtToImage pipeline (e.g., scalers, color changers).
     """
     def process(self, mlx: MlxVar, img: ImgData,
@@ -278,7 +285,8 @@ class Stages(Protocol):
 
 
 class ImageScaler:
-    """A processing stage that resizes images using nearest-neighbor interpolation."""
+    """A processing stage that resizes images using nearest-neighbor
+    interpolation."""
     def process(self, mlx: MlxVar, img: ImgData,
                 factor: float = 1.0, font_color: int = 0xFFFFFFFF,
                 bg_color: int = 0x00000000) -> ImgData:
@@ -331,7 +339,7 @@ class TxtColorChanger:
                 bg_color: int = 0x00000000) -> ImgData:
         """Changes the font and background colors of a glyph.
 
-        Identifies 'empty' pixels (black) and replaces them with bg_color, 
+        Identifies 'empty' pixels (black) and replaces them with bg_color,
         while replacing non-black pixels with font_color.
 
         Args:
@@ -369,13 +377,13 @@ class TxtColorChanger:
 class TxtToImage:
     """Handles rendering of text strings into graphical buffers with caching.
 
-    Uses a pipeline of 'Stages' to transform base character glyphs into 
-    styled versions (scaled, colored, etc.) and maintains a cache to 
+    Uses a pipeline of 'Stages' to transform base character glyphs into
+    styled versions (scaled, colored, etc.) and maintains a cache to
     minimize redundant processing.
 
     Attributes:
         base_letter_map (Dict[str, ImgData]): Original source glyphs.
-        extended_letter_map (Dict[str, ImgData]): Cache of processed glyphs, 
+        extended_letter_map (Dict[str, ImgData]): Cache of processed glyphs,
             keyed by character and style parameters.
         stages (List[Stages]): Ordered list of transformations to apply.
     """
@@ -396,7 +404,7 @@ class TxtToImage:
                   bg_color: int = 0x00000000) -> int:
         """Renders a string into a target image buffer.
 
-        Each character is retrieved from cache or processed through the stages 
+        Each character is retrieved from cache or processed through the stages
         if not yet cached. The characters are then blitted sequentially.
 
         Args:
