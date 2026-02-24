@@ -1,12 +1,13 @@
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Any
 from mlx import Mlx
 from srcs.mlx_tools.mlx_errors import MLXError
 from srcs.mlx_tools.ImageOperations import ImgData, ImageOperations
 
 
 class MlxVar:
+    """MLX module variable to store mlx graphics library variables"""
     def __init__(self) -> None:
-        self.mlx = None
+        self.mlx = Mlx()
         self.mlx_ptr = None
         self.win_ptr = None
         self.screen_w = 0
@@ -16,6 +17,7 @@ class MlxVar:
 
 
 class MlxVarWithLetters(MlxVar):
+    """Child class of MLX variable with additional image store option"""
     def __init__(self) -> None:
         super().__init__()
         self.letter_img = ImgData()
@@ -24,16 +26,38 @@ class MlxVarWithLetters(MlxVar):
 
 
 class MyMLX:
-    def __init__(self, name: str, w: int, h: int):
+    """A wrapper class for MiniLibX (MLX) to handle windowing and image buffering.
+
+    This class manages the lifecycle of an MLX instance, including window 
+    initialization, event hooks (mouse, keyboard, window close), and 
+    double-buffering via static and dynamic image buffers.
+
+    Attributes:
+        name (str): The title of the MLX window.
+        w (int): Width of the window in pixels.
+        h (int): Height of the window in pixels.
+        mlx (MlxVarWithLetters): Custom container for MLX pointers and image data.
+    """
+
+    def __init__(self, name: str, w: int, h: int) -> None:
+        """Initializes MyMLX with window dimensions and sets up the MLX environment."""
+
         self.name = name
         self.w = w
         self.h = h
         self.mlx = MlxVarWithLetters()
         self.init_mlx()
 
-    def init_mlx(self):
+    def init_mlx(self) -> None:
+        """Initializes the MLX pointer, creates a window, and prepares image buffers.
+
+        Sets up mouse, keyboard, and window close hooks.
+
+        Raises:
+            MLXError: If MLX initialization, window creation, or buffer 
+                allocation fails.
+        """
         try:
-            self.mlx.mlx = Mlx()
             self.mlx.mlx_ptr = self.mlx.mlx.mlx_init()
             self.mlx.win_ptr = self.mlx.mlx.mlx_new_window(
                 self.mlx.mlx_ptr, self.w, self.h, self.name)
@@ -56,41 +80,78 @@ class MyMLX:
                 f"Mlx initialization failed. {type(e).__name__}: {e}")
 
     def get_mlx(self) -> MlxVar:
+        """Returns the current MLX variable container.
+
+        Returns:
+            MlxVar: The object containing MLX pointers and state.
+        """
         return self.mlx
 
-    def start_mlx(self):
+    def start_mlx(self) -> None:
+        """Enters the MLX main event loop. This is a blocking call."""
         self.mlx.mlx.mlx_loop(self.mlx.mlx_ptr)
 
-    def stop_mlx(self, mlx_var):
-        self.mlx.mlx.mlx_loop_exit(self.mlx.mlx_ptr)
-        self.clean_mlx()
+    def stop_mlx(self, mlx_var: MlxVar) -> None:
+        """Exits the MLX loop and triggers resource cleanup.
 
-    def clean_mlx(self):
-        self.mlx.mlx.mlx_destroy_image(self.mlx.mlx_ptr,
-                                       self.mlx.buff_img.img)
-        self.mlx.mlx.mlx_destroy_image(self.mlx.mlx_ptr,
-                                       self.mlx.static_bg.img)
+        Args:
+            mlx_var (MlxVar): The MLX state container.
+        """
+        self.mlx.mlx.mlx_loop_exit(self.mlx.mlx_ptr)
+        # self.clean_mlx()
+
+    def clean_mlx(self) -> None:
+        """Destroys all allocated MLX images and the window to prevent memory leaks.
+        
+        Iterates through the letter maps and buffer images to free graphical memory.
+        """
+        if self.mlx.buff_img.img is not None:
+            self.mlx.mlx.mlx_destroy_image(
+                self.mlx.mlx_ptr, self.mlx.buff_img.img)
+        if self.mlx.static_bg.img is not None:
+            self.mlx.mlx.mlx_destroy_image(self.mlx.mlx_ptr,
+                                           self.mlx.static_bg.img)
         if self.mlx.letter_img.img is not None:
             self.mlx.mlx.mlx_destroy_image(self.mlx.mlx_ptr,
                                            self.mlx.letter_img.img)
         if len(self.mlx.base_letter_map) > 0:
             for _, val in self.mlx.base_letter_map.items():
-                self.mlx.mlx.mlx_destroy_image(self.mlx.mlx_ptr, val.img)
-        if len(self.mlx.base_letter_map) > 0:
+                if val.img is not None:
+                    self.mlx.mlx.mlx_destroy_image(self.mlx.mlx_ptr, val.img)
+        if len(self.mlx.extended_letter_map) > 0:
             for _, val in self.mlx.extended_letter_map.items():
-                self.mlx.mlx.mlx_destroy_image(self.mlx.mlx_ptr, val.img)
-        self.mlx.mlx.mlx_destroy_window(self.mlx.mlx_ptr, self.mlx.win_ptr)
+                if val.img is not None:
+                    self.mlx.mlx.mlx_destroy_image(self.mlx.mlx_ptr, val.img)
+        if self.mlx.win_ptr is not None:
+            self.mlx.mlx.mlx_destroy_window(self.mlx.mlx_ptr, self.mlx.win_ptr)
+        if self.mlx.mlx_ptr is not None:
+            self.mlx.mlx.mlx_release(self.mlx.mlx_ptr)
 
-    def mymouse(self, button, x, y, mystuff):
+    def mymouse(self, button: int, x: int, y: int, mystuff: Any) -> None:
+        """Callback for mouse click events.
+
+        Args:
+            button (int): The mouse button index pressed.
+            x (int): The x-coordinate of the mouse click.
+            y (int): The y-coordinate of the mouse click.
+            mystuff (Any): User-defined data passed to the hook.
+        """
         print(f"Got mouse event! button {button} at {x},{y}.")
 
-    def mykey(self, key_num, mlx_var):
+    def mykey(self, key_num: int, mlx_var: MlxVar) -> None:
+        """Callback for keyboard press events.
+
+        Args:
+            key_num (int): The keycode of the key pressed.
+            mlx_var (MlxVar): The MLX state container.
+        """
         pass
         # print(f"Got key {keynum}, and got my stuff back:")
         # if keynum == 112:
         #     print("Next Move")
 
-    def put_buffer_image(self):
+    def put_buffer_image(self) -> None:
+        """Pushes the current buffer image to the MLX window."""
         if self.mlx.buff_img is not None:
             self.mlx.mlx.mlx_put_image_to_window(
                 self.mlx.mlx_ptr, self.mlx.win_ptr, self.mlx.buff_img.img,
@@ -99,8 +160,19 @@ class MyMLX:
             print("Error: buffer image is not set")
 
     @staticmethod
-    def set_background(img: ImgData, center: Tuple,
-                       w: int, h: int, color=0xFF000000):
+    def set_background(img: ImgData, center: Tuple[int, int],
+                       w: int, h: int, color: int = 0xFF000000) -> None:
+        """Directly modifies image pixel data to set a background color.
+
+        Uses byte manipulation to fill a rectangular area of the image data array.
+
+        Args:
+            img (ImgData): The image object containing the data buffer to modify.
+            center (Tuple[int, int]): (x, y) starting coordinates.
+            w (int): Width of the background area to fill.
+            h (int): Height of the background area to fill.
+            color (int): Hexadecimal color (ARGB) to apply. Defaults to black.
+        """
         if w > img.w:
             w = img.w
         if h > img.h:
@@ -113,5 +185,15 @@ class MyMLX:
             if img.data is not None:
                 img.data[start:end] = pixel_bytes * w
 
-    def rgb_to_hex(self, r: int = 0, g: int = 0, b: int = 0):
+    def rgb_to_hex(self, r: int = 0, g: int = 0, b: int = 0) -> int:
+        """Converts RGB components into an ARGB integer.
+
+        Args:
+            r (int): Red component (0-255).
+            g (int): Green component (0-255).
+            b (int): Blue component (0-255).
+
+        Returns:
+            int: The 32-bit ARGB hex value.
+        """
         return 0xFF000000 | r << 16 | g << 8 | b

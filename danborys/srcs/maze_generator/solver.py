@@ -5,11 +5,10 @@ from typing import Tuple, List
 
 
 class Solver():
-    def find_path(self, grid: Grid, config: Configuration) -> str:
+    def find_path(self, grid: Grid, entry: Tuple[int, int], exit: Tuple[int, int]) -> str:
         self.grid = grid
-        self.config = config
-        start = self.config.entry
-        end = self.config.exit
+        start = entry
+        end = exit
         queue = deque([(start, "")])
         visited = set()
         visited.add(start)

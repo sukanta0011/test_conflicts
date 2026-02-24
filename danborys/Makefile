@@ -3,8 +3,8 @@ PIP = pip
 ENV = uv
 MAIN = a_maze_ing.py
 ENV_NAME = venv
-MAIN = srcs.maze_generator.a_maze_ing
-CONFIG = srcs/maze_generator/config.txt
+MAIN = a_maze_ing.py
+CONFIG = config.txt
 WORK_DIR = srcs
 ALL_CACHE = $(shell find . -path "./.venv" -prune -o -name "__pycache__" -print -o -name ".mypy_cache" -print)
 VENV_PATH = $(shell find . -type d -name ".$(ENV_NAME)" -print)
@@ -29,8 +29,8 @@ run:
 	@if [ ! -d ".$(ENV_NAME)" ]; then \
 		$(MAKE) install; \
 	else \
-		echo $(ENV) run $(PYTHON) -m  $(MAIN) $(CONFIG); \
-		$(ENV) run $(PYTHON) -m  $(MAIN) $(CONFIG); \
+		echo $(ENV) run $(PYTHON) $(MAIN) $(CONFIG); \
+		$(ENV) run $(PYTHON) $(MAIN) $(CONFIG); \
 	fi
 
 

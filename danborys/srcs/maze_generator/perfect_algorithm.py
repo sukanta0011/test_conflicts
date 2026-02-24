@@ -8,18 +8,18 @@ from collections import deque
 class PerfectAlgorithm(Algorithm):
     def generate(self) -> Grid:
         self.grid.reset_cells()
-        if self.config.seed:
-            random.seed(self.config.seed)
+        if self.seed:
+            random.seed(self.seed)
         self.visited: Set[Tuple[int, int]] = set()
         cells_42 = self.get_42_cells()
         if isinstance(cells_42, str):
             print(cells_42)
-            self.carve_maze_from(self.config.entry)
+            self.carve_maze_from(self.entry)
         else:
             self.visited.update(cells_42)
-            self.carve_maze_from(self.config.entry)
+            self.carve_maze_from(self.entry)
         # here we test our logic
-        if not self.config.perfect:
+        if not self.perfect:
             self.visited = set()
             if not isinstance(cells_42, str):
                 self.visited.update(cells_42)
@@ -100,8 +100,8 @@ class PerfectAlgorithm(Algorithm):
 
     def is_coord_in_boundry(self, coords: Tuple[int, int]) -> bool:
         if (
-            0 <= coords[0] < self.config.height
-            and 0 <= coords[1] < self.config.width
+            0 <= coords[0] < self.height
+            and 0 <= coords[1] < self.width
         ):
             return True
         return False

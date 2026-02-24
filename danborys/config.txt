@@ -1,8 +1,8 @@
 # defualt configuration
-WIDTH=40
-HEIGHT=20
+WIDTH=150
+HEIGHT=100
 ENTRY=0,0
-EXIT=19,37
+EXIT=50,149
 OUTPUT_FILE=maze.txt
 PERFECT=False
 SEED=

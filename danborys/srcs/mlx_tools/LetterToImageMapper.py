@@ -8,7 +8,23 @@ from srcs.mlx_tools.ImageOperations import ImageOperations
 
 
 class LetterToImageMapper:
+    """Handles the extraction and mapping of font glyphs from a sprite sheet.
+
+    This class parses a master XPM image containing alphanumeric characters 
+    and symbols, automatically calculating the tightest width for each 
+    character to support proportional font rendering.
+
+    Attributes:
+        mlx (MlxVarWithLetters): Container for MLX state and font maps.
+        image (str): Path to the master sprite sheet XPM.
+        letter_per_row (int): Number of characters per row in the sprite sheet.
+        cap (str): String containing uppercase character order in sheet.
+        small (str): String containing lowercase character order in sheet.
+        num (str): String containing numeric character order in sheet.
+        symbols (str): String containing special character order in sheet.
+    """
     def __init__(self, mlx: MlxVarWithLetters) -> None:
+        """Initializes the mapper and loads the master alphabet image."""
         self.mlx = mlx
         self.image = "images/alphabets.xpm"
         self.letter_per_row = 9
@@ -18,7 +34,15 @@ class LetterToImageMapper:
         self.symbols = ".,;:_#'!\"/?<>%&*()"
         self.mlx.letter_img = ImageOperations.xmp_to_img(self.mlx, self.image)
 
-    def create_map(self):
+    def create_map(self) -> None:
+        """Triggers the full extraction process for all character sets.
+
+        Maps capitals, small letters, numbers, and symbols based on hardcoded 
+        sprite sheet offsets. Also creates a default blank image for spaces.
+
+        Raises:
+            ImgError: If image generation or cropping fails during extraction.
+        """
         w = 60  # Horizontal spacing between each letter
         h = 80  # Vertical spacing between each letter
         try:
@@ -44,7 +68,22 @@ class LetterToImageMapper:
 
     def extract_different_letter_types(self, symbols: str, crop_w: int,
                                        crop_h: int, x_off: int, y_off: int,
-                                       w: int, h: int, vertical_off: int):
+                                       w: int, h: int,
+                                       vertical_off: int) -> None:
+        """Calculates the minimal bounding box width for a character.
+
+        Scans the pixel data from left-to-right and right-to-left to find the 
+        first non-black pixels, allowing for proportional text spacing.
+
+        Args:
+            img: The master sprite sheet image data.
+            center: The (x, y) origin of the character cell.
+            h: The height of the area to scan.
+            w: The maximum width of the area to scan.
+
+        Returns:
+            Tuple[int, int]: A tuple of (left_offset, actual_width).
+        """
         for id, letter in enumerate(symbols):
             x = id % self.letter_per_row
             y = id // self.letter_per_row
@@ -56,8 +95,18 @@ class LetterToImageMapper:
                 letter, width, crop_h,
                 (w * x + 2 + new_x_off, h * y + y_off + vertical_off))
 
-    def extract_letter_width(self, img: ImgData, center: Tuple,
+    def extract_letter_width(self, img: ImgData, center: Tuple[int, int],
                              h: int, w: int) -> Tuple[int, int]:
+        """Crops a specific glyph and stores it in the base_letter_map.
+
+        Args:
+            key: The character key (e.g., 'A', '!').
+            w: The calculated width of the glyph.
+            h: The height of the glyph.
+            center: Top-left coordinate in the master image.
+            color: Default foreground color (unused during crop).
+            bg_color: Default background color (unused during crop).
+        """
         start_x, start_y = center
         # print(f"Shared: {start_x, start_x + w}")
         left_width, right_width = img.w + 10, 0
@@ -88,8 +137,9 @@ class LetterToImageMapper:
         return (left_width - start_x, (right_width - left_width))
 
     def crop_sub_image_from_image(self, key: str, w: int, h: int,
-                                  center: Tuple, color=0xFFFFFFFF,
-                                  bg_color=0x00000000):
+                                  center: Tuple[int, int],
+                                  color: int = 0xFFFFFFFF,
+                                  bg_color: int = 0x00000000) -> None:
         self.mlx.base_letter_map[key] = ImageOperations.generate_blank_image(
             self.mlx, w, h)
         ImageOperations.crop_img(self.mlx.base_letter_map[key],
