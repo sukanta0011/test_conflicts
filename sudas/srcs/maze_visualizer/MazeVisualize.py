@@ -7,9 +7,8 @@ from srcs.maze_visualizer.MazeParams import MazeParams, KeyMap
 from srcs.mlx_tools.ImageOperations import (
     TxtToImage, ImageScaler, TxtColorChanger)
 from srcs.mlx_tools.LetterToImageMapper import LetterToImageMapper
-from srcs.maze_generator.maze_generator import MazeGenerator
-from srcs.maze_generator.solver import Solver
-from srcs.maze_generator.output_writer import OutputWriter
+from mazegen import MazeGenerator
+from output_writer import OutputWriter
 
 
 class MazeVisualizer(MyMLX, ABC):
@@ -30,16 +29,14 @@ class MazeVisualizer(MyMLX, ABC):
     """
     def __init__(self, name: str, w: int, h: int,
                  const: MazeParams, generator: MazeGenerator,
-                 path: str, solver: Solver,
-                 output_writer: OutputWriter):
+                 path: str, output_writer: OutputWriter):
         """Initializes the visualizer and sets up the graphical environment."""
         super().__init__(name, w, h)
         self.const = const
         self.generator = generator
-        self.solver = solver
         self.output_writer = output_writer
-        self.entry = self.generator.config.entry
-        self.exit = self.generator.config.exit
+        self.entry = self.generator.entry
+        self.exit = self.generator.exit
         self.path = path
         self.cells = self.generator.grid.cells
         self.init_letter_map()
@@ -76,8 +73,9 @@ class MazeVisualizer(MyMLX, ABC):
         if key_num in KeyMap.REGEN:  # 1
             self.set_background(self.mlx.buff_img, (0, 0),
                                 self.w, self.h, 0xFF000000)
-            grid = self.generator.algorithm.generate()
-            new_path = self.solver.find_path(grid, self.generator.config)
+            self.generator.generate()
+            grid = self.generator.grid
+            new_path = self.generator.solution
             self.output_writer.create_output(grid, new_path)
             self.cells = grid.cells
             self.display_maze(grid.cells, self.const.wall_color)
@@ -139,7 +137,7 @@ class MazeVisualizer(MyMLX, ABC):
         Calculates dynamic positioning to center the interaction instructions
         based on the window width and maze height.
         """
-        pos_x = (self.const.win_w - 430) // 2  # Text required appox 475pix
+        pos_x = (self.const.win_w - 430) // 2  # Text required appox 430pix
         pos_y = len(self.generator.grid.cells) * self.const.grid_size + 25
         texts = ["1: regan, ", "2: path, ", "3: color, ", "4: quit"]
         for txt in texts:

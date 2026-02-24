@@ -35,16 +35,8 @@ class MazeParams:
     """
     def __init__(self) -> None:
         """Initializes default maze parameters and color schemes."""
-        # colors are in hex color code, 00->0, FF -> 255
-        # from left to right
-        # 0x(FF)FFFFFF -> Transparency
-        # 0xFF(FF)FFFF -> red
-        # 0xFFFF(FF)FF -> green
-        # 0xFFFFFF(FF) -> blue
-
-        # Dimensions are in pixels
-        self.grid_size = 6
-        self.wall_thickness = 1
+        self.grid_size = 16
+        self.wall_thickness = 4
         self.bg_color = 0xFF000000
         self.wall_color = 0xFFFFFFFF
         self.color_42 = 0xFFFF00FF

@@ -1,15 +1,15 @@
 import sys
 from pathlib import Path
-from srcs.maze_generator.maze_generator import MazeGenerator
-from srcs.maze_generator.config_parser import Configuration, ConfigParser
+from mazegen import MazeGenerator
+# from srcs.maze_generator.maze_generator import MazeGenerator
+from config_parser import Configuration, ConfigParser
 from srcs.maze_visualizer.MazeVisualize import MazeVisualizerOne
 from srcs.maze_visualizer.MazeParams import MazeParams
-from srcs.maze_generator.solver import Solver
-from srcs.maze_generator.output_writer import OutputWriter
+from output_writer import OutputWriter
 import faulthandler
 
 
-def main() -> None:
+def main():
     """
     Entry point of the A-Maze-ing application.
 
@@ -34,15 +34,19 @@ def main() -> None:
         exit(1)
 
     configuration: Configuration = ConfigParser.parse_config(Path(sys.argv[1]))
-    generator = MazeGenerator(config=configuration)
+    generator = MazeGenerator(configuration.width,
+                              configuration.height,
+                              configuration.entry,
+                              configuration.exit,
+                              configuration.perfect,
+                              configuration.seed)
     # generator.print_grid()
     # path = "EEESEENEEESSWWWWSESWWNNWNWSWSSESSWSSSENNENESSSENEESEENES"
     data = generator.grid.cells
     # print(data)
     # config: Configuration = generator.config
     # print(config.entry)
-    solver = Solver()
-    path = solver.find_path(generator.grid, configuration)
+    path = generator.solution
     output_writer = OutputWriter(configuration)
     output_writer.create_output(generator.grid, path)
 
@@ -54,7 +58,7 @@ def main() -> None:
         # print(maze_params.win_w, maze_params.win_h)
         visualizer = MazeVisualizerOne("A-Maze-Ing", maze_params.win_w,
                                        maze_params.win_h, maze_params,
-                                       generator, path, solver, output_writer)
+                                       generator, path, output_writer)
         visualizer.set_background(visualizer.mlx.buff_img,
                                   (0, 0), visualizer.mlx.buff_img.w,
                                   visualizer.mlx.buff_img.w, 0xFF000000)
@@ -72,3 +76,4 @@ def main() -> None:
 if __name__ == "__main__":
     faulthandler.enable()
     main()
+
