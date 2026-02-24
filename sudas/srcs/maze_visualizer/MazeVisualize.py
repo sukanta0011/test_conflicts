@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List
 import random
 from abc import ABC, abstractmethod
 from srcs.mlx_tools.BaseMLX import MyMLX, MlxVar
