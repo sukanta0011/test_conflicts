@@ -1,5 +1,4 @@
 from .grid import Grid, Wall
-from .config_parser import Configuration
 from collections import deque
 from typing import Tuple, List
 

@@ -8,8 +8,7 @@ from srcs.mlx_tools.ImageOperations import (
     TxtToImage, ImageScaler, TxtColorChanger)
 from srcs.mlx_tools.LetterToImageMapper import LetterToImageMapper
 from srcs.maze_generator.maze_generator import MazeGenerator
-from srcs.maze_generator.solver import Solver
-from srcs.maze_generator.output_writer import OutputWriter
+from output_writer import OutputWriter
 
 
 class MazeVisualizer(MyMLX, ABC):
@@ -29,13 +28,12 @@ class MazeVisualizer(MyMLX, ABC):
     """
     def __init__(self, name: str, w: int, h: int,
                  const: MazeParams, generator: MazeGenerator,
-                 path: str, solver: Solver,
+                 path: str,
                  output_writer: OutputWriter):
         """Initializes the visualizer and sets up the graphical environment."""
         super().__init__(name, w, h)
         self.const = const
         self.generator = generator
-        self.solver = solver
         self.output_writer = output_writer
         self.entry = self.generator.entry
         self.exit = self.generator.exit
@@ -74,8 +72,9 @@ class MazeVisualizer(MyMLX, ABC):
         if key_num == 49 or key_num == 65436:  # 1
             self.set_background(self.mlx.buff_img, (0, 0),
                                 self.w, self.h, 0xFF000000)
-            grid = self.generator.algorithm.generate()
-            new_path = self.solver.find_path(grid, self.generator.entry, self.generator.exit)
+            self.generator.generate()
+            grid = self.generator.grid
+            new_path = self.generator.solution
             self.output_writer.create_output(grid, new_path)
             self.cells = grid.cells
             self.display_maze(grid.cells, self.const.wall_color)

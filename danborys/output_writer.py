@@ -1,5 +1,5 @@
-from .config_parser import Configuration
-from .grid import Grid
+from config_parser import Configuration
+from srcs.maze_generator.grid import Grid
 
 
 class OutputWriter():
