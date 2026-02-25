@@ -35,7 +35,7 @@ class MazeParams:
     """
     def __init__(self) -> None:
         """Initializes default maze parameters and color schemes."""
-        self.grid_size = 16
+        self.grid_size = 6
         self.wall_thickness = 4
         self.bg_color = 0xFF000000
         self.wall_color = 0xFFFFFFFF

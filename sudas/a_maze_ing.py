@@ -46,6 +46,8 @@ def main():
 
     try:
         maze_params = MazeParams()
+        maze_params.grid_size = 4
+        maze_params.wall_thickness = 1
         maze_params.initialize_maze(len(data[0]), len(data))
         visualizer = MazeVisualizerOne(
             "A-Maze-Ing", maze_params.win_w, maze_params.win_h,
