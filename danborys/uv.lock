@@ -36,7 +36,7 @@ dependencies = [
     { name = "pydantic" },
 ]
 wheels = [
-    { filename = "mazegen-1.0.0-py3-none-any.whl", hash = "sha256:065cfd67fa348f026b5bbdc4aa542ba0405b1582d86b5b45e10699864a28184d" },
+    { filename = "mazegen-1.0.0-py3-none-any.whl", hash = "sha256:3a5763edef045ce3b963a12d090f0a9c6d1578dd9efdf15a3ccfc7a1d8ce97bd" },
 ]
 
 [package.metadata]

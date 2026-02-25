@@ -26,21 +26,24 @@ class MlxVarWithLetters(MlxVar):
 
 
 class MyMLX:
-    """A wrapper class for MiniLibX (MLX) to handle windowing and image buffering.
+    """A wrapper class for MiniLibX (MLX) to handle windowing and
+    image buffering.
 
-    This class manages the lifecycle of an MLX instance, including window 
-    initialization, event hooks (mouse, keyboard, window close), and 
+    This class manages the lifecycle of an MLX instance, including window
+    initialization, event hooks (mouse, keyboard, window close), and
     double-buffering via static and dynamic image buffers.
 
     Attributes:
         name (str): The title of the MLX window.
         w (int): Width of the window in pixels.
         h (int): Height of the window in pixels.
-        mlx (MlxVarWithLetters): Custom container for MLX pointers and image data.
+        mlx (MlxVarWithLetters): Custom container for MLX pointers
+        and image data.
     """
 
     def __init__(self, name: str, w: int, h: int) -> None:
-        """Initializes MyMLX with window dimensions and sets up the MLX environment."""
+        """Initializes MyMLX with window dimensions and sets up the
+        MLX environment."""
 
         self.name = name
         self.w = w
@@ -49,12 +52,13 @@ class MyMLX:
         self.init_mlx()
 
     def init_mlx(self) -> None:
-        """Initializes the MLX pointer, creates a window, and prepares image buffers.
+        """Initializes the MLX pointer, creates a window, and prepares
+        image buffers.
 
         Sets up mouse, keyboard, and window close hooks.
 
         Raises:
-            MLXError: If MLX initialization, window creation, or buffer 
+            MLXError: If MLX initialization, window creation, or buffer
                 allocation fails.
         """
         try:
@@ -101,9 +105,11 @@ class MyMLX:
         # self.clean_mlx()
 
     def clean_mlx(self) -> None:
-        """Destroys all allocated MLX images and the window to prevent memory leaks.
-        
-        Iterates through the letter maps and buffer images to free graphical memory.
+        """Destroys all allocated MLX images and the window to prevent
+        memory leaks.
+
+        Iterates through the letter maps and buffer images to free
+        graphical memory.
         """
         if self.mlx.buff_img.img is not None:
             self.mlx.mlx.mlx_destroy_image(
@@ -164,10 +170,12 @@ class MyMLX:
                        w: int, h: int, color: int = 0xFF000000) -> None:
         """Directly modifies image pixel data to set a background color.
 
-        Uses byte manipulation to fill a rectangular area of the image data array.
+        Uses byte manipulation to fill a rectangular area of the image data
+        array.
 
         Args:
-            img (ImgData): The image object containing the data buffer to modify.
+            img (ImgData): The image object containing the data buffer
+            to modify.
             center (Tuple[int, int]): (x, y) starting coordinates.
             w (int): Width of the background area to fill.
             h (int): Height of the background area to fill.

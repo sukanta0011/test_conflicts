@@ -5,6 +5,25 @@ import sys
 
 
 class Configuration(BaseModel):
+    """
+    Represents and validates the maze configuration parameters.
+
+    This model defines all required configuration fields for maze generation
+    and ensures their correctness using Pydantic validation.
+
+    Attributes:
+        width (int): Width of the maze grid. Must be >= 1.
+        height (int): Height of the maze grid. Must be >= 1.
+        entry (Tuple[int, int]): Entry cell coordinates (row, column).
+        exit (Tuple[int, int]): Exit cell coordinates (row, column).
+        output_file (str): Name of the output file where the maze
+            representation will be saved. Must end with '.txt'.
+        perfect (bool): Indicates whether the maze must be perfect
+            (i.e., with a unique solution).
+        seed (None | str): Optional seed used to make maze generation
+            reproducible.
+    """
+
     width: int = Field(ge=1, le=2147483648)
     height: int = Field(ge=1, le=2147483648)
     entry: Tuple[int, int]
@@ -14,21 +33,102 @@ class Configuration(BaseModel):
     seed: None | str = Field(default=None)
 
     @model_validator(mode="before")
-    def create_tuples(cls, row_data: Dict) -> Dict:
-        entry_x_y = row_data.get("entry")
-        if not entry_x_y:
+    def preprocess_fields(cls, row_data: Dict) -> Dict:
+        """
+        Preprocess and validate raw configuration values before model
+        validation.
+
+        This validator performs early transformations and strict checks:
+            - Converts 'entry' and 'exit' from comma-separated strings
+          (e.g., "0,1") into integer tuples (0, 1).
+            - Ensures 'entry' and 'exit' contain exactly two integer values.
+            - Enforces strict boolean parsing for the 'perfect' field,
+          allowing only "true" or "false" (case-insensitive).
+            - Converts the 'perfect' field into a boolean.
+
+        Args:
+            row_data (Dict): Raw configuration dictionary parsed
+                from the configuration file.
+
+        Returns:
+            Dict: Updated dictionary with transformed values.
+
+        Raises:
+            ValueError:
+                - If 'ENTRY' or 'EXIT' is missing.
+                - If coordinates are not valid integers.
+                - If 'PERFECT' is missing.
+                - If 'PERFECT' is not strictly "true" or "false".
+        """
+        # ---- ENTRY ----
+        entry_value = row_data.get("entry")
+        if not entry_value:
             raise ValueError(" - Field 'ENTRY': No value")
-        entry_x_y = entry_x_y.split(",")
-        exit_x_y = row_data.get("exit")
-        if not exit_x_y:
+
+        entry_parts = entry_value.split(",")
+        if len(entry_parts) != 2:
+            raise ValueError(" - Field 'ENTRY': must contain two integers")
+
+        try:
+            row_data["entry"] = (
+                int(entry_parts[0]),
+                int(entry_parts[1]),
+            )
+        except ValueError:
+            raise ValueError(
+                " - Field 'ENTRY': coordinates must be integers"
+            )
+
+        # ---- EXIT ----
+        exit_value = row_data.get("exit")
+        if not exit_value:
             raise ValueError(" - Field 'EXIT': No value")
-        exit_x_y = exit_x_y.split(",")
-        row_data["entry"] = tuple(entry_x_y)
-        row_data["exit"] = tuple(exit_x_y)
+
+        exit_parts = exit_value.split(",")
+        if len(exit_parts) != 2:
+            raise ValueError(" - Field 'EXIT': must contain two integers")
+
+        try:
+            row_data["exit"] = (
+                int(exit_parts[0]),
+                int(exit_parts[1]),
+            )
+        except ValueError:
+            raise ValueError(
+                " - Field 'EXIT': coordinates must be integers"
+            )
+
+        # ---- PERFECT ----
+        perfect_value = row_data.get("perfect")
+        if perfect_value is None:
+            raise ValueError(" - Field 'PERFECT': No value")
+
+        if perfect_value.lower() not in {"true", "false"}:
+            raise ValueError(
+                " - Field 'PERFECT': must be 'true' or 'false'"
+            )
+
+        row_data["perfect"] = perfect_value.lower() == "true"
+
         return row_data
 
     @model_validator(mode="after")
     def check_config(self) -> Self:
+        """
+        Perform cross-field validation of configuration values.
+
+        Ensures:
+            - Entry and exit are different.
+            - Coordinates are non-negative.
+            - Coordinates are inside maze bounds.
+            - Output file has a '.txt' extension.
+
+        Returns:
+            Self: Validated configuration instance.
+
+        Raises:
+            ValueError: If any configuration constraint is violated.
+        """
         if self.entry == self.exit:
             raise ValueError(" - Field 'ENTRY': must be different from 'EXIT'")
         if self.entry[0] < 0 or self.entry[1] < 0:
@@ -54,8 +154,30 @@ class Configuration(BaseModel):
 
 
 class ConfigParser():
+    """
+    Utility class responsible for parsing a configuration file
+    and returning a validated Configuration object.
+    """
+
     @staticmethod
     def parse_config(file_path: Path) -> Configuration:
+        """
+        Parse a configuration file and validate its contents.
+
+        The configuration file must follow the format:
+            One KEY=VALUE pair (key=value is allowed) per line.
+
+        Comment lines must start with '#'.
+
+        Args:
+            file_path (Path): Path to the configuration file.
+
+        Returns:
+            Configuration: A validated configuration instance.
+
+        Raises:
+            SystemExit: If the file is missing or contains invalid data.
+        """
         row_data: Dict[str, str] = {}
         data: List[str]
         try:

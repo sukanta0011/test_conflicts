@@ -40,7 +40,17 @@ class Grid:
         # Total number of cells in the grid
         self.cells_count = width * height
 
-    def reset_cells(self):
+    def reset_cells(self) -> None:
+        """
+        Reset all grid cells to their default value.
+
+        Reinitializes the internal 2D grid structure so that every cell
+        is set to 15 (0xF in hexadecimal), which represents a fully
+        closed cell with all walls present.
+
+        This method is typically used before generating or regenerating
+        a maze to ensure a clean initial state.
+        """
         self.cells = [
             [15 for _ in range(self.width)] for _ in range(self.height)]
 
@@ -50,14 +60,6 @@ class Grid:
         Mainly used for debugging purposes.
         """
         return "\n".join([str(row) for row in self.cells])
-
-    def print_hex_format(self) -> None:
-        """
-        Debug helper. Prints the grid in hexadecimal format
-        """
-        for row in self.cells:
-            print([hex(cell).removeprefix("0x").upper()
-                   for cell in row])
 
 
 class Wall(IntEnum):

@@ -7,10 +7,12 @@ from srcs.mlx_tools.ImageOperations import ImageOperations, ImgData
 
 
 class ShapeGenerator:
-    """Static utility class for drawing geometric primitives onto image buffers.
+    """Static utility class for drawing geometric primitives onto
+    image buffers.
 
-    This class provides methods to render basic shapes like lines, hollow squares, 
-    and filled rectangles by directly manipulating the underlying pixel data 
+    This class provides methods to render basic shapes like lines,
+    hollow squares, and filled rectangles by directly manipulating
+    the underlying pixel data
     of an ImgData object.
     """
     @staticmethod
@@ -29,7 +31,7 @@ class ShapeGenerator:
             thickness: Width of the line in pixels.
 
         Raises:
-            ParametersError: If coordinates are non-integers, out of range, 
+            ParametersError: If coordinates are non-integers, out of range,
                 or if an invalid direction is provided.
         """
         x, y = coordinate
@@ -67,7 +69,8 @@ class ShapeGenerator:
                            len: int, color: int = 0xFFFFFFFF) -> None:
         """Draws a hollow square centered around a specific coordinate.
 
-        Constructs the square by calling `draw_line` for each of the four sides.
+        Constructs the square by calling `draw_line` for each of the
+        four sides.
 
         Args:
             mlx_var: The MLX state container.
@@ -77,7 +80,8 @@ class ShapeGenerator:
             color: Hexadecimal color (ARGB).
 
         Raises:
-            ImgError: If the square exceeds image boundaries or calculation fails.
+            ImgError: If the square exceeds image boundaries or
+            calculation fails.
         """
         try:
             x, y = center

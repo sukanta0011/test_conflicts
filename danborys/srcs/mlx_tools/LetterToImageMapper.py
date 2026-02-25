@@ -10,8 +10,8 @@ from srcs.mlx_tools.ImageOperations import ImageOperations
 class LetterToImageMapper:
     """Handles the extraction and mapping of font glyphs from a sprite sheet.
 
-    This class parses a master XPM image containing alphanumeric characters 
-    and symbols, automatically calculating the tightest width for each 
+    This class parses a master XPM image containing alphanumeric characters
+    and symbols, automatically calculating the tightest width for each
     character to support proportional font rendering.
 
     Attributes:
@@ -37,7 +37,7 @@ class LetterToImageMapper:
     def create_map(self) -> None:
         """Triggers the full extraction process for all character sets.
 
-        Maps capitals, small letters, numbers, and symbols based on hardcoded 
+        Maps capitals, small letters, numbers, and symbols based on hardcoded
         sprite sheet offsets. Also creates a default blank image for spaces.
 
         Raises:
@@ -72,7 +72,7 @@ class LetterToImageMapper:
                                        vertical_off: int) -> None:
         """Calculates the minimal bounding box width for a character.
 
-        Scans the pixel data from left-to-right and right-to-left to find the 
+        Scans the pixel data from left-to-right and right-to-left to find the
         first non-black pixels, allowing for proportional text spacing.
 
         Args:

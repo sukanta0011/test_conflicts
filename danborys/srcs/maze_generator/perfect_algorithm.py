@@ -6,7 +6,32 @@ from collections import deque
 
 
 class PerfectAlgorithm(Algorithm):
+    """
+    Depth-First Search (DFS) based maze generation algorithm.
+
+    This implementation generates a perfect maze by default
+    (i.e., exactly one unique path between any two cells).
+    When `perfect` is False, additional walls may be removed
+    to introduce cycles and create multiple possible paths.
+
+    The algorithm also reserves special cells used to represent
+    the number "42" in the center of sufficiently large mazes.
+    """
     def generate(self) -> Grid:
+        """
+        Generate the maze grid.
+
+        Steps:
+            1. Reset all grid cells to their initial state.
+            2. Apply random seed (if provided).
+            3. Reserve special "42" cells if possible.
+            4. Generate a perfect maze using DFS backtracking.
+            5. Optionally remove additional walls if
+               non-perfect mode is enabled.
+
+        Returns:
+            Grid: The generated maze grid.
+        """
         self.grid.reset_cells()
         if self.seed:
             random.seed(self.seed)
@@ -18,7 +43,6 @@ class PerfectAlgorithm(Algorithm):
         else:
             self.visited.update(cells_42)
             self.carve_maze_from(self.entry)
-        # here we test our logic
         if not self.perfect:
             self.visited = set()
             if not isinstance(cells_42, str):
@@ -38,7 +62,19 @@ class PerfectAlgorithm(Algorithm):
                         self.grid.cells[r][c - 1] |= Wall.EAST
         return self.grid
 
-    def carve_maze_from(self, first_cell: Tuple[int, int]):
+    def carve_maze_from(self, first_cell: Tuple[int, int]) -> None:
+        """
+        Generate maze paths using iterative DFS with backtracking.
+
+        This method:
+            - Starts from the given cell.
+            - Randomly explores unvisited neighbouring cells.
+            - Removes walls between adjacent cells.
+            - Uses a stack (deque) to backtrack when needed.
+
+        Args:
+            first_cell (Tuple[int, int]): Starting cell coordinates.
+        """
         cells_deque: Deque = deque()
         cells_deque.append(first_cell)
         self.visited.add(first_cell)
@@ -68,6 +104,19 @@ class PerfectAlgorithm(Algorithm):
 
     def find_neighbours(self,
                         cur_cell: Tuple[int, int]) -> List[Tuple[int, int]]:
+        """
+        Return all unvisited neighbouring cells.
+
+        Only neighbours that:
+            - Are within grid boundaries.
+            - Have not been visited.
+
+        Args:
+            cur_cell (Tuple[int, int]): Current cell coordinates.
+
+        Returns:
+            List[Tuple[int, int]]: List of valid neighbouring cells.
+        """
         neighbours: List[Tuple[int, int]] = []
         left_neighbour = tuple([cur_cell[0], cur_cell[1] - 1])
         if (
@@ -99,6 +148,16 @@ class PerfectAlgorithm(Algorithm):
         return neighbours
 
     def is_coord_in_boundry(self, coords: Tuple[int, int]) -> bool:
+        """
+        Check whether given coordinates are inside the maze boundaries.
+
+        Args:
+            coords (Tuple[int, int]): Cell coordinates (row, col).
+
+        Returns:
+            bool: True if coordinates are inside the grid,
+            otherwise False.
+        """
         if (
             0 <= coords[0] < self.height
             and 0 <= coords[1] < self.width
@@ -108,6 +167,18 @@ class PerfectAlgorithm(Algorithm):
 
     def open_wall(self, neighbour: List[Tuple[int, int]],
                   cur_cell: Tuple[int, int]) -> None:
+        """
+        Remove a wall between the current cell and a random neighbour.
+
+        This method is used when generating non-perfect mazes
+        to introduce additional openings between cells.
+
+        Args:
+            neighbour (List[Tuple[int, int]]):
+                List of candidate neighbouring cells.
+            cur_cell (Tuple[int, int]):
+                Current cell coordinates.
+        """
         if len(neighbour) > 0:
             random.shuffle(neighbour)
             row_next, col_next = neighbour[0]
@@ -128,6 +199,22 @@ class PerfectAlgorithm(Algorithm):
 
     def get_unknown_neighbour(
             self, cur_cell: Tuple[int, int]) -> List[Tuple[int, int]]:
+        """
+        Return neighbouring cells separated by intact walls.
+
+        This method:
+            - Inspects wall bit flags of the current cell.
+            - Detects neighbours where a wall still exists.
+            - Filters neighbours that are within boundaries
+              and not yet visited.
+
+        Args:
+            cur_cell (Tuple[int, int]): Current cell coordinates.
+
+        Returns:
+            List[Tuple[int, int]]: List of neighbouring cells
+            that are still separated by a wall.
+        """
         unknown_neighbours: List[Tuple[int, int]] = []
         curr_val = self.grid.cells[cur_cell[0]][cur_cell[1]]
         if curr_val >> 0 & 1:

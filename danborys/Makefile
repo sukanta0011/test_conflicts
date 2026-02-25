@@ -27,6 +27,9 @@ install:
 	
 
 run:
+	@if [ ! -d ".$(ENV_NAME)" ]; then \
+		make install;\
+	fi
 	$(ENV) run $(PYTHON) $(MAIN) $(CONFIG)
 
 debug:
