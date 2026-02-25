@@ -1,10 +1,10 @@
 import sys
 from pathlib import Path
 from mazegen import MazeGenerator
-from config_parser import Configuration, ConfigParser
-from srcs.maze_visualizer.MazeVisualize import MazeVisualizerOne
-from srcs.maze_visualizer.MazeParams import MazeParams
-from output_writer import OutputWriter
+from mazegen.config_parser import Configuration, ConfigParser
+from mazegen.output_writer import OutputWriter
+from mazeview import MazeVisualizerOne
+from mazeview import MazeParams
 import faulthandler
 
 
@@ -47,9 +47,10 @@ def main() -> None:
     try:
         maze_params = MazeParams()
         maze_params.initialize_maze(len(data[0]), len(data))
-        visualizer = MazeVisualizerOne("A-Maze-Ing", maze_params.win_w,
-                                       maze_params.win_h, maze_params,
-                                       generator, path, output_writer)
+        visualizer = MazeVisualizerOne(
+            "A-Maze-Ing", maze_params.win_w, maze_params.win_h,
+            maze_params, data, generator.entry, generator.exit, path,
+            generator, output_writer)
         visualizer.set_background(visualizer.mlx.buff_img,
                                   (0, 0), visualizer.mlx.buff_img.w,
                                   visualizer.mlx.buff_img.w, 0xFF000000)
@@ -59,7 +60,7 @@ def main() -> None:
         visualizer.start_mlx()
         visualizer.clean_mlx()
     except Exception as e:
-        print(e)
+        print(f"We are here: {e}")
 
 
 if __name__ == "__main__":

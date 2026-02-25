@@ -1,14 +1,15 @@
 from typing import Tuple
-from srcs.mlx_tools.BaseMLX import MlxVarWithLetters, MyMLX
-from srcs.mlx_tools.mlx_errors import (
+from pathlib import Path
+from .base_mlx import MlxVarWithLetters, MyMLX
+from .mlx_errors import (
     ImgError
 )
-from srcs.mlx_tools.ImageOperations import ImgData
-from srcs.mlx_tools.ImageOperations import ImageOperations
+from .image_operations import ImgData
+from .image_operations import ImageOperations
 
 
 class LetterToImageMapper:
-    """Handles the extraction and mapping of font glyphs from a sprite sheet.
+    """Handles the extraction and mapping of font from a sprite sheet.
 
     This class parses a master XPM image containing alphanumeric characters
     and symbols, automatically calculating the tightest width for each
@@ -26,13 +27,18 @@ class LetterToImageMapper:
     def __init__(self, mlx: MlxVarWithLetters) -> None:
         """Initializes the mapper and loads the master alphabet image."""
         self.mlx = mlx
-        self.image = "images/alphabets.xpm"
         self.letter_per_row = 9
         self.cap = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         self.small = "abcdefghijklmnopqrstuvwxyz"
         self.num = "0123456789"
         self.symbols = ".,;:_#'!\"/?<>%&*()"
-        self.mlx.letter_img = ImageOperations.xmp_to_img(self.mlx, self.image)
+        base_path = Path(__file__).resolve().parent
+        self.image = Path.joinpath(base_path, "alphabets.xpm")
+        if self.image.exists():
+            self.mlx.letter_img = ImageOperations.xmp_to_img(
+                self.mlx, str(self.image))
+        else:
+            raise ImgError("'alphabets.xpm' file not found in 'mlx_tools")
 
     def create_map(self) -> None:
         """Triggers the full extraction process for all character sets.

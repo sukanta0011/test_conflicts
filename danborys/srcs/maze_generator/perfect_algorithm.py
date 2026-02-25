@@ -56,7 +56,7 @@ class PerfectAlgorithm(Algorithm):
                 for c in range(self.grid.width):
                     if self.grid.cells[r][c] == 0 and\
                         self.grid.cells[r - 1][c - 1] >> 1 & 0 and\
-                        self.grid.cells[r - 1][c - 1] >> 2 & 0:
+                            self.grid.cells[r - 1][c - 1] >> 2 & 0:
                         self.grid.cells[r][c] = 9
                         self.grid.cells[r - 1][c] |= Wall.SOUTH
                         self.grid.cells[r][c - 1] |= Wall.EAST
@@ -88,7 +88,7 @@ class PerfectAlgorithm(Algorithm):
                 row_next, col_next = neighbours[0]
                 row_cur, col_cur = current_cell
                 self.visited.add((row_next, col_next))
-                current_wall = 0
+                current_wall: Wall = Wall.SOUTH
                 if row_next > row_cur:
                     current_wall = Wall.SOUTH
                 elif row_next < row_cur:
@@ -118,28 +118,28 @@ class PerfectAlgorithm(Algorithm):
             List[Tuple[int, int]]: List of valid neighbouring cells.
         """
         neighbours: List[Tuple[int, int]] = []
-        left_neighbour = tuple([cur_cell[0], cur_cell[1] - 1])
+        left_neighbour = (cur_cell[0], cur_cell[1] - 1)
         if (
             self.is_coord_in_boundry(left_neighbour)
             and left_neighbour not in self.visited
         ):
             neighbours.append(left_neighbour)
 
-        right_neighbour = tuple([cur_cell[0], cur_cell[1] + 1])
+        right_neighbour = (cur_cell[0], cur_cell[1] + 1)
         if (
             self.is_coord_in_boundry(right_neighbour)
             and right_neighbour not in self.visited
         ):
             neighbours.append(right_neighbour)
 
-        up_neighbour = tuple([cur_cell[0] - 1, cur_cell[1]])
+        up_neighbour = (cur_cell[0] - 1, cur_cell[1])
         if (
             self.is_coord_in_boundry(up_neighbour)
             and up_neighbour not in self.visited
         ):
             neighbours.append(up_neighbour)
 
-        down_neighbour = tuple([cur_cell[0] + 1, cur_cell[1]])
+        down_neighbour = (cur_cell[0] + 1, cur_cell[1])
         if (
             self.is_coord_in_boundry(down_neighbour)
             and down_neighbour not in self.visited
@@ -184,7 +184,7 @@ class PerfectAlgorithm(Algorithm):
             row_next, col_next = neighbour[0]
             row_cur, col_cur = cur_cell
             self.visited.add((row_next, col_next))
-            current_wall = 0
+            current_wall: Wall = Wall.SOUTH
             if row_next > row_cur:
                 current_wall = Wall.SOUTH
             elif row_next < row_cur:

@@ -8,6 +8,7 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "mazegen" },
+    { name = "mazeview" },
     { name = "mlx" },
     { name = "pydantic" },
 ]
@@ -15,6 +16,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "mazegen", path = "mazegen-1.0.0-py3-none-any.whl" },
+    { name = "mazeview", path = "mazeview-1.0.0-py3-none-any.whl" },
     { name = "mlx", path = "mlx-2.2-py3-none-any.whl" },
     { name = "pydantic", specifier = ">=2.12.5" },
 ]
@@ -36,11 +38,19 @@ dependencies = [
     { name = "pydantic" },
 ]
 wheels = [
-    { filename = "mazegen-1.0.0-py3-none-any.whl", hash = "sha256:3a5763edef045ce3b963a12d090f0a9c6d1578dd9efdf15a3ccfc7a1d8ce97bd" },
+    { filename = "mazegen-1.0.0-py3-none-any.whl", hash = "sha256:74b1b0b8d29f8bdfffdfffa89ba297183a432f88f915490ce74da1f32c5c72e0" },
 ]
 
 [package.metadata]
 requires-dist = [{ name = "pydantic", specifier = ">=2.12.5" }]
+
+[[package]]
+name = "mazeview"
+version = "1.0.0"
+source = { path = "mazeview-1.0.0-py3-none-any.whl" }
+wheels = [
+    { filename = "mazeview-1.0.0-py3-none-any.whl", hash = "sha256:335332a3ceab405a5bd5970a2a5f8a1ab94187c0d03021ca7f2fa261eb2518c2" },
+]
 
 [[package]]
 name = "mlx"

@@ -1,14 +1,18 @@
-from typing import List
+from __future__ import annotations
+from typing import List, Tuple, TYPE_CHECKING
 import random
+import sys
 from abc import ABC, abstractmethod
-from srcs.mlx_tools.BaseMLX import MyMLX, MlxVar
-from srcs.mlx_tools.ShapeMaker import ShapeGenerator
-from srcs.maze_visualizer.MazeParams import MazeParams, KeyMap
-from srcs.mlx_tools.ImageOperations import (
+from .mlx_tools.base_mlx import MyMLX, MlxVar
+from .mlx_tools.shape_maker import ShapeGenerator
+from .maze_params import MazeParams, KeyMap
+from .mlx_tools.image_operations import (
     TxtToImage, ImageScaler, TxtColorChanger)
-from srcs.mlx_tools.LetterToImageMapper import LetterToImageMapper
-from mazegen import MazeGenerator
-from output_writer import OutputWriter
+from .mlx_tools.letter_to_img_map import LetterToImageMapper
+from mazegen.output_writer import OutputWriter
+
+if TYPE_CHECKING:
+    from mazegen import MazeGenerator
 
 
 class MazeVisualizer(MyMLX, ABC):
@@ -28,17 +32,19 @@ class MazeVisualizer(MyMLX, ABC):
         txt_to_image (TxtToImage): Pipeline for rendering styled UI text.
     """
     def __init__(self, name: str, w: int, h: int,
-                 const: MazeParams, generator: MazeGenerator,
-                 path: str, output_writer: OutputWriter):
+                 const: MazeParams, cells: List[List[int]],
+                 entry: Tuple[int, int], exit: Tuple[int, int],
+                 path: str = "", generator: MazeGenerator = None,
+                 output_writer: OutputWriter = None):
         """Initializes the visualizer and sets up the graphical environment."""
         super().__init__(name, w, h)
         self.const = const
         self.generator = generator
         self.output_writer = output_writer
-        self.entry = self.generator.entry
-        self.exit = self.generator.exit
+        self.entry = entry
+        self.exit = exit
         self.path = path
-        self.cells = self.generator.grid.cells
+        self.cells = cells
         self.init_letter_map()
 
     def init_letter_map(self) -> None:
@@ -48,14 +54,19 @@ class MazeVisualizer(MyMLX, ABC):
         Loads the alphabet sprite sheet and adds scaling and coloring stages
         to the text rendering engine.
         """
-        letter_to_img_map = LetterToImageMapper(self.mlx)
-        letter_to_img_map.create_map()
+        self.txt_to_image = None
+        try:
+            letter_to_img_map = LetterToImageMapper(self.mlx)
+            letter_to_img_map.create_map()
 
-        self.txt_to_image = TxtToImage(
-            self.mlx.base_letter_map,
-            self.mlx.extended_letter_map)
-        self.txt_to_image.add_stages(ImageScaler())
-        self.txt_to_image.add_stages(TxtColorChanger())
+            self.txt_to_image = TxtToImage(
+                self.mlx.base_letter_map,
+                self.mlx.extended_letter_map)
+            self.txt_to_image.add_stages(ImageScaler())
+            self.txt_to_image.add_stages(TxtColorChanger())
+        except Exception as e:
+            print("Following Error encounter during creation of"
+                  f"letter map: {e}", file=sys.stderr)
 
     def mykey(self, key_num: int, mlx_var: MlxVar) -> None:
         """Handles keyboard input to trigger maze actions.
@@ -70,30 +81,31 @@ class MazeVisualizer(MyMLX, ABC):
             key_num: The integer code of the pressed key.
             mlx_var: The current MLX state.
         """
-        if key_num in KeyMap.REGEN:  # 1
-            self.set_background(self.mlx.buff_img, (0, 0),
-                                self.w, self.h, 0xFF000000)
-            self.generator.generate()
-            grid = self.generator.grid
-            new_path = self.generator.solution
-            self.output_writer.create_output(grid, new_path)
-            self.cells = grid.cells
-            self.display_maze(grid.cells, self.const.wall_color)
-            self.path = new_path
-            if self.const.path_visible:
-                self.show_path(self.path, self.const.path_color)
-            self.show_user_interaction_options()
-            self.put_buffer_image()
-        if key_num in KeyMap.TOGGLE_PATH:  # 2
-            if self.const.path_visible:
-                self.show_path(self.path, self.const.bg_color)
+        if self.generator and self.output_writer:
+            if key_num in KeyMap.REGEN:  # 1
+                self.set_background(self.mlx.buff_img, (0, 0),
+                                    self.w, self.h, 0xFF000000)
+                self.generator.generate()
+                grid = self.generator.grid
+                new_path = self.generator.solution
+                self.output_writer.create_output(grid, new_path)
+                self.cells = grid.cells
+                self.display_maze(grid.cells, self.const.wall_color)
+                self.path = new_path
+                if self.const.path_visible:
+                    self.show_path(self.path, self.const.path_color)
+                self.show_user_interaction_options()
                 self.put_buffer_image()
-                self.const.path_visible = False
-                # print(f"path visible, toggle: {self.const.path_visible}")
-            else:
-                self.show_path(self.path, self.const.path_color)
-                self.put_buffer_image()
-                # print(f"path visible, toggle: {self.const.path_visible}")
+            if key_num in KeyMap.TOGGLE_PATH:  # 2
+                if self.const.path_visible:
+                    self.show_path(self.path, self.const.bg_color)
+                    self.put_buffer_image()
+                    self.const.path_visible = False
+                    # print(f"path visible, toggle: {self.const.path_visible}")
+                else:
+                    self.show_path(self.path, self.const.path_color)
+                    self.put_buffer_image()
+                    # print(f"path visible, toggle: {self.const.path_visible}")
 
         if key_num in KeyMap.COLOR:  # 3
             color_list = [i for i in range(256)]
@@ -137,12 +149,13 @@ class MazeVisualizer(MyMLX, ABC):
         Calculates dynamic positioning to center the interaction instructions
         based on the window width and maze height.
         """
-        pos_x = (self.const.win_w - 430) // 2  # Text required appox 430pix
-        pos_y = len(self.generator.grid.cells) * self.const.grid_size + 25
-        texts = ["1: regan, ", "2: path, ", "3: color, ", "4: quit"]
-        for txt in texts:
-            pos_x = self.txt_to_image.print_txt(
-                self.mlx, self.mlx.buff_img, txt, (pos_x, pos_y), 0.5)
+        if self.txt_to_image and self.generator:
+            pos_x = (self.const.win_w - 430) // 2  # Text required appox 430pix
+            pos_y = len(self.generator.grid.cells) * self.const.grid_size + 25
+            texts = ["1: regan, ", "2: path, ", "3: color, ", "4: quit"]
+            for txt in texts:
+                pos_x = self.txt_to_image.print_txt(
+                    self.mlx, self.mlx.buff_img, txt, (pos_x, pos_y), 0.5)
 
 
 class MazeVisualizerOne(MazeVisualizer):
@@ -329,4 +342,3 @@ class MazeVisualizerOne(MazeVisualizer):
 
 if __name__ == "__main__":
     pass
-    # maze_tester()

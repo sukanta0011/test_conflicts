@@ -5,10 +5,10 @@ from typing import Tuple
 @dataclass
 class KeyMap:
     """Data class to to store multiple keys for a specific action"""
-    REGEN: Tuple = (49, 65436)       # Key '1' and Numpad '1'
-    TOGGLE_PATH: Tuple = (50, 65433)  # Key '2' and Numpad '2'
-    COLOR: Tuple = (51, 65435)       # Key '3' and Numpad '3'
-    QUIT: Tuple = (52, 65430)        # Key '4' and Numpad '4'
+    REGEN: Tuple[int, int] = (49, 65436)       # Key '1' and Numpad '1'
+    TOGGLE_PATH: Tuple[int, int] = (50, 65433)  # Key '2' and Numpad '2'
+    COLOR: Tuple[int, int] = (51, 65435)       # Key '3' and Numpad '3'
+    QUIT: Tuple[int, int] = (52, 65430)        # Key '4' and Numpad '4'
 
 
 class MazeParams:

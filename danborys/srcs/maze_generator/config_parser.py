@@ -109,7 +109,6 @@ class Configuration(BaseModel):
             )
 
         row_data["perfect"] = perfect_value.lower() == "true"
-
         return row_data
 
     @model_validator(mode="after")
@@ -189,11 +188,14 @@ class ConfigParser():
         for line in data:
             if line.startswith("#"):
                 continue
-            if "=" not in line:
+            if "=" not in line or " =" in line or "= " in line:
                 print(f"Invalid configuration line: {line}", file=sys.stderr)
                 exit(1)
             line = line.strip("\n").strip()
             key, value = line.split("=", 1)
+            if not key or not value:
+                print(f"Invalid configuration line: {line}", file=sys.stderr)
+                exit(1)
             row_data[key.lower()] = value
         try:
             return Configuration(**row_data)
