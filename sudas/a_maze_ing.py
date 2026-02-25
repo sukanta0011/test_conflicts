@@ -40,22 +40,14 @@ def main():
                               configuration.exit,
                               configuration.perfect,
                               configuration.seed)
-    # generator.print_grid()
-    # path = "EEESEENEEESSWWWWSESWWNNWNWSWSSESSWSSSENNENESSSENEESEENES"
     data = generator.grid.cells
-    # print(data)
-    # config: Configuration = generator.config
-    # print(config.entry)
     path = generator.solution
     output_writer = OutputWriter(configuration)
     output_writer.create_output(generator.grid, path)
 
     try:
-        # w, h = MazeParams.get_maze_size_in_pixels(len(data[0]), len(data))
-        # print(len(data[0]), len(data))
         maze_params = MazeParams()
         maze_params.initialize_maze(len(data[0]), len(data))
-        # print(maze_params.win_w, maze_params.win_h)
         visualizer = MazeVisualizerOne("A-Maze-Ing", maze_params.win_w,
                                        maze_params.win_h, maze_params,
                                        generator, path, output_writer)
@@ -63,17 +55,14 @@ def main():
                                   (0, 0), visualizer.mlx.buff_img.w,
                                   visualizer.mlx.buff_img.w, 0xFF000000)
         visualizer.display_maze(data, visualizer.const.wall_color)
-        # visualizer.show_path(path, visualizer.const.path_color)
         visualizer.show_user_interaction_options()
         visualizer.put_buffer_image()
         visualizer.start_mlx()
         visualizer.clean_mlx()
     except Exception as e:
         print(e)
-    # return generator
 
 
 if __name__ == "__main__":
     faulthandler.enable()
     main()
-

@@ -4,6 +4,6 @@ HEIGHT=50
 ENTRY=0,0
 EXIT=24,24
 OUTPUT_FILE=maze.txt
-PERFECT=False
+PERFECT=True
 SEED=42
 # for pydantic 'PERFECT=yes' is 'PERFECT=True'

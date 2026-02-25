@@ -65,7 +65,7 @@ class MazeParams:
         """
         if rows <= 0 or columns <= 0:
             raise ValueError(
-                "TO get maze size in pixels, please provide "
+                "To get maze size in pixels, please provide "
                 f"positive rows ({rows}) and columns ({columns}).")
         w = rows * self.grid_size + self.wall_thickness
         h = columns * self.grid_size + self.wall_thickness + self.txt_h
