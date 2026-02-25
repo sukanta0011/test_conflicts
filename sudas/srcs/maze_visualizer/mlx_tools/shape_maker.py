@@ -1,9 +1,9 @@
 from typing import Tuple
-from srcs.mlx_tools.BaseMLX import MlxVar
-from srcs.mlx_tools.mlx_errors import (
+from .base_mlx import MlxVar
+from .mlx_errors import (
     ParametersError, ImgError
 )
-from srcs.mlx_tools.ImageOperations import ImageOperations, ImgData
+from .image_operations import ImageOperations, ImgData
 
 
 class ShapeGenerator:

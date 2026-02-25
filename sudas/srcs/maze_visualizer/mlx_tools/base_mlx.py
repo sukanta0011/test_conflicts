@@ -1,7 +1,7 @@
 from typing import Dict, Tuple, Any
 from mlx import Mlx
-from srcs.mlx_tools.mlx_errors import MLXError
-from srcs.mlx_tools.ImageOperations import ImgData, ImageOperations
+from .mlx_errors import MLXError
+from .image_operations import ImgData, ImageOperations
 
 
 class MlxVar:
@@ -17,7 +17,7 @@ class MlxVar:
 
 
 class MlxVarWithLetters(MlxVar):
-    """Child class of MLX variable with additional image store option"""
+    """Child class of MLX variable with additional image storing option"""
     def __init__(self) -> None:
         super().__init__()
         self.letter_img = ImgData()

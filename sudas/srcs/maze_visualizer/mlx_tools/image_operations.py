@@ -1,13 +1,13 @@
 from __future__ import annotations
 from typing import List, Tuple, Protocol, Dict, TYPE_CHECKING
-from srcs.mlx_tools.mlx_errors import (
+from .mlx_errors import (
     ImgError,
     ParametersError,
     InitializationError,
     OperationError
 )
 if TYPE_CHECKING:
-    from srcs.mlx_tools.BaseMLX import MlxVar
+    from .base_mlx import MlxVar
 
 
 class ImgData:
