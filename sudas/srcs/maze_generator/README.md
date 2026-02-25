@@ -1,1 +1,0 @@
-Read of how to use the maze generator module
